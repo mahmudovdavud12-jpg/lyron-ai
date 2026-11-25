@@ -1,0 +1,235 @@
+
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LYRON AI — Zəkanın yeni səviyyəsi</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #090909;
+  color: #f5f0e5;
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+}
+
+header {
+  padding: 22px;
+  border-bottom: 1px solid #332a16;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  color: #d6ad55;
+  font-size: 27px;
+  font-weight: bold;
+  letter-spacing: 3px;
+}
+
+.logo span {
+  color: white;
+}
+
+.status {
+  margin-left: auto;
+  color: #b99a5b;
+  font-size: 12px;
+}
+
+main {
+  max-width: 850px;
+  margin: 65px auto;
+  padding: 20px;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 45px;
+}
+
+.emblem {
+  color: #d6ad55;
+  font-size: 58px;
+  margin-bottom: 15px;
+}
+
+h1 {
+  font-size: 38px;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+h1 span {
+  color: #d6ad55;
+}
+
+.subtitle {
+  color: #999;
+  font-size: 15px;
+}
+
+.chat {
+  border: 1px solid #59451f;
+  border-radius: 16px;
+  padding: 20px;
+  background: #111;
+  min-height: 270px;
+}
+
+.messages {
+  min-height: 190px;
+}
+
+.message {
+  background: #1b1b1b;
+  padding: 14px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.bot {
+  border-left: 3px solid #d6ad55;
+}
+
+.user {
+  border-left: 3px solid #777;
+}
+
+.input-area {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+input {
+  flex: 1;
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid #59451f;
+  border-radius: 10px;
+  background: #080808;
+  color: white;
+  outline: none;
+  font-size: 15px;
+}
+
+button {
+  padding: 14px 20px;
+  background: #c49b48;
+  color: #080808;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #e0bd70;
+}
+
+footer {
+  text-align: center;
+  color: #777;
+  margin-top: 35px;
+  font-size: 12px;
+}
+
+@media(max-width: 500px) {
+  main {
+    margin-top: 35px;
+  }
+
+  h1 {
+    font-size: 29px;
+  }
+
+  .input-area {
+    flex-direction: column;
+  }
+
+  button {
+    width: 100%;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">✦ LYRON <span>AI</span></div>
+  <div class="status">● Sistem interfeysi</div>
+</header>
+
+<main>
+
+  <section class="hero">
+    <div class="emblem">✧</div>
+    <h1>LYRON <span>AI</span></h1>
+    <p class="subtitle">Zəkanın yeni səviyyəsi.</p>
+  </section>
+
+  <section class="chat">
+    <div class="messages" id="messages">
+      <div class="message bot">
+        <strong>LYRON AI</strong><br>
+        Salam! Mən LYRON AI. Yeni nəsil süni intellekt layihəsinə xoş gəlmisiniz.
+      </div>
+    </div>
+
+    <div class="input-area">
+      <input
+        id="userInput"
+        type="text"
+        placeholder="Mesajınızı yazın..."
+      >
+      <button onclick="sendMessage()">Göndər</button>
+    </div>
+  </section>
+
+  <footer>
+    LYRON AI © 2026 — Zəkanın yeni səviyyəsi.
+  </footer>
+
+</main>
+
+<script>
+function sendMessage() {
+  const input = document.getElementById("userInput");
+  const messages = document.getElementById("messages");
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  const userMessage = document.createElement("div");
+  userMessage.className = "message user";
+  userMessage.textContent = "Siz: " + text;
+  messages.appendChild(userMessage);
+
+  const botMessage = document.createElement("div");
+  botMessage.className = "message bot";
+  botMessage.textContent =
+    "LYRON AI: Süni intellekt mühərriki hələ qoşulmayıb. Hazırlıq davam edir.";
+  messages.appendChild(botMessage);
+
+  input.value = "";
+  messages.scrollTop = messages.scrollHeight;
+}
+
+document.getElementById("userInput").addEventListener("keydown", function(event) {
+  if (event.key === "Enter") sendMessage();
+});
+</script>
+
+</body>
+</html>
