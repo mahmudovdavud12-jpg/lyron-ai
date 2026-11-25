@@ -204,7 +204,10 @@ footer {
 </main>
 
 <script>
-function sendMessage() {
+
+let chatHistory = [];
+
+async function sendMessage() {
   const input = document.getElementById("userInput");
   const messages = document.getElementById("messages");
   const text = input.value.trim();
@@ -216,20 +219,45 @@ function sendMessage() {
   userMessage.textContent = "Siz: " + text;
   messages.appendChild(userMessage);
 
-  const botMessage = document.createElement("div");
-  botMessage.className = "message bot";
-  botMessage.textContent =
-    "LYRON AI: Süni intellekt mühərriki hələ qoşulmayıb. Hazırlıq davam edir.";
-  messages.appendChild(botMessage);
-
   input.value = "";
+
+  const loading = document.createElement("div");
+  loading.className = "message bot";
+  loading.textContent = "LYRON AI düşünür...";
+  messages.appendChild(loading);
+
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: text,
+        history: chatHistory
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "AI bağlantı xətası");
+    }
+
+    loading.textContent = "LYRON AI: " + data.answer;
+
+    chatHistory.push(
+      { role: "user", content: text },
+      { role: "assistant", content: data.answer }
+    );
+
+  } catch (error) {
+    loading.textContent = "LYRON AI: " + error.message;
+  }
+
   messages.scrollTop = messages.scrollHeight;
 }
 
 document.getElementById("userInput").addEventListener("keydown", function(event) {
   if (event.key === "Enter") sendMessage();
 });
-</script>
-
-</body>
-</html>
