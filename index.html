@@ -9,105 +9,457 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#090909;color:#f5f0e5;font-family:Arial,sans-serif;min-height:100vh}
-header{height:70px;padding:0 22px;border-bottom:1px solid #292319;display:flex;align-items:center;justify-content:space-between}
-.logo{color:#d6ad55;font-size:23px;font-weight:bold;letter-spacing:2px}
-.logo span{color:white}
-.status{color:#b99a5b;font-size:11px}
+
+:root{
+  --bg:#090909;
+  --panel:#101010;
+  --card:#171717;
+  --text:#f5f0e5;
+  --muted:#999;
+  --border:#40351f;
+  --gold:#d6ad55;
+  --user:#292319;
+  --chat-size:14px;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+  min-height:100vh;
+  transition:.2s;
+}
+
+body.light{
+  --bg:#f3f0e8;
+  --panel:#ffffff;
+  --card:#eee9dd;
+  --text:#171717;
+  --muted:#666;
+  --border:#d4c39c;
+  --gold:#9a7023;
+  --user:#e8dfcb;
+}
+
+header{
+  height:70px;
+  padding:0 18px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.header-left{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.menu-button{
+  background:transparent;
+  color:var(--gold);
+  border:1px solid var(--border);
+  padding:9px 12px;
+  border-radius:8px;
+  font-size:19px;
+}
+
+.logo{
+  color:var(--gold);
+  font-size:22px;
+  font-weight:bold;
+  letter-spacing:2px;
+}
+
+.logo span{color:var(--text)}
+.status{color:var(--gold);font-size:11px}
+
 main{max-width:780px;margin:35px auto;padding:16px}
 .hero{text-align:center;margin-bottom:25px}
-.emblem{color:#d6ad55;font-size:38px;margin-bottom:10px}
+.emblem{color:var(--gold);font-size:38px;margin-bottom:10px}
 h1{font-size:31px;letter-spacing:2px;margin-bottom:8px}
-h1 span{color:#d6ad55}
-.subtitle{color:#888;font-size:13px}
-.panel,.chat{border:1px solid #40351f;border-radius:14px;background:#101010;overflow:hidden}
+h1 span{color:var(--gold)}
+.subtitle{color:var(--muted);font-size:13px}
+
+.panel,.chat{
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:var(--panel);
+  overflow:hidden;
+}
+
 .panel{max-width:430px;margin:0 auto 20px;padding:22px}
-.panel h2{color:#d6ad55;font-size:18px;margin-bottom:16px;text-align:center}
+.panel h2{color:var(--gold);font-size:18px;margin-bottom:16px;text-align:center}
 .panel input{width:100%;margin-bottom:12px}
-input{padding:14px;border:1px solid #40351f;border-radius:9px;background:#080808;color:white;outline:none;font-size:14px}
-input:focus{border-color:#d6ad55}
-.auth-buttons{display:flex;gap:10px}
+
+input,select{
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:var(--bg);
+  color:var(--text);
+  outline:none;
+  font-size:14px;
+}
+
+input:focus,select:focus{border-color:var(--gold)}
 button{cursor:pointer}
-.auth-buttons button{flex:1;padding:13px 8px;border-radius:8px;border:1px solid #c49b48;background:#c49b48;color:#080808;font-weight:bold}
-.auth-buttons button.secondary{background:transparent;color:#d6ad55}
-#authMessage{font-size:12px;color:#d6ad55;margin-top:14px;line-height:1.5;text-align:center}
-.account-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;font-size:12px;color:#b99a5b}
-.small-button,.clear-button,.new-chat-button{background:transparent;border:1px solid #514329;color:#aaa;padding:8px 11px;border-radius:7px;font-size:11px}
-.new-chat-button{color:#d6ad55;border-color:#9b7939}
+
+.auth-buttons{display:flex;gap:10px}
+.auth-buttons button{
+  flex:1;padding:13px 8px;border-radius:8px;
+  border:1px solid var(--gold);
+  background:var(--gold);color:#080808;font-weight:bold;
+}
+.auth-buttons button.secondary{background:transparent;color:var(--gold)}
+
+#authMessage{
+  font-size:12px;color:var(--gold);
+  margin-top:14px;line-height:1.5;text-align:center;
+}
+
+.account-bar{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:10px;margin-bottom:12px;
+  font-size:12px;color:var(--gold);
+}
+
+.small-button,.clear-button,.new-chat-button{
+  background:transparent;border:1px solid var(--border);
+  color:var(--muted);padding:8px 11px;
+  border-radius:7px;font-size:11px;
+}
+
+.new-chat-button{color:var(--gold);border-color:var(--gold)}
 .new-chat-button:disabled,.clear-button:disabled{opacity:.5;cursor:not-allowed}
-.chat-top{padding:15px 18px;border-bottom:1px solid #292319;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.chat-title{font-size:13px;color:#d6ad55}
+
+.chat-top{
+  padding:15px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;flex-wrap:wrap;
+}
+
+.chat-title{font-size:13px;color:var(--gold)}
 .chat-actions{display:flex;gap:8px;flex-wrap:wrap}
-.messages{height:390px;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
-.message{max-width:88%;padding:12px 14px;border-radius:10px;font-size:14px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
-.bot{align-self:flex-start;background:#1b1b1b;border-left:2px solid #d6ad55}
-.user{align-self:flex-end;background:#292319;border-right:2px solid #d6ad55}
-.input-area{padding:14px;border-top:1px solid #292319;display:flex;gap:10px}
+
+.messages{
+  height:390px;overflow-y:auto;padding:18px;
+  display:flex;flex-direction:column;gap:12px;
+}
+
+.message{
+  max-width:88%;padding:12px 14px;
+  border-radius:10px;font-size:var(--chat-size);
+  line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;
+}
+
+.bot{align-self:flex-start;background:var(--card);border-left:2px solid var(--gold)}
+.user{align-self:flex-end;background:var(--user);border-right:2px solid var(--gold)}
+
+.input-area{
+  padding:14px;border-top:1px solid var(--border);
+  display:flex;gap:10px;
+}
+
 .input-area input{flex:1;min-width:0;margin:0}
-.send-button{padding:0 20px;background:#c49b48;color:#080808;border:0;border-radius:9px;font-weight:bold}
+.send-button{
+  padding:0 20px;background:var(--gold);
+  color:#080808;border:0;border-radius:9px;font-weight:bold;
+}
 .send-button:disabled{opacity:.5;cursor:not-allowed}
-footer{text-align:center;color:#666;margin-top:25px;font-size:11px}
+
+footer{text-align:center;color:var(--muted);margin-top:25px;font-size:11px}
 .hidden{display:none!important}
+
+/* MENYU */
+
+.overlay{
+  position:fixed;inset:0;background:#000a;
+  z-index:20;display:none;
+}
+
+.overlay.open{display:block}
+
+.sidebar{
+  position:fixed;top:0;left:0;bottom:0;
+  width:min(320px,85vw);
+  background:var(--panel);
+  border-right:1px solid var(--border);
+  z-index:21;padding:22px;
+  transform:translateX(-105%);
+  transition:transform .25s;
+  overflow-y:auto;
+}
+
+.sidebar.open{transform:translateX(0)}
+
+.sidebar-header{
+  display:flex;align-items:center;
+  justify-content:space-between;
+  margin-bottom:25px;
+}
+
+.sidebar-title{color:var(--gold);font-size:20px;font-weight:bold}
+.close-menu{
+  background:transparent;border:0;color:var(--muted);
+  font-size:25px;padding:4px;
+}
+
+.menu-item{
+  width:100%;padding:14px 12px;
+  margin-bottom:9px;border-radius:9px;
+  border:1px solid transparent;
+  background:var(--card);color:var(--text);
+  text-align:left;font-size:14px;
+}
+
+.menu-item.active{
+  border-color:var(--gold);color:var(--gold);
+}
+
+.menu-item span{margin-right:10px}
+
+.sidebar-footer{
+  margin-top:25px;padding-top:18px;
+  border-top:1px solid var(--border);
+  color:var(--muted);font-size:11px;
+  text-align:center;
+}
+
+/* PARAMETRLƏR */
+
+.settings-view{margin-top:15px}
+.settings-heading{
+  color:var(--gold);font-size:20px;
+  margin-bottom:8px;
+}
+
+.settings-description{
+  color:var(--muted);font-size:12px;
+  line-height:1.5;margin-bottom:20px;
+}
+
+.setting-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;padding:14px;
+  margin-bottom:12px;
+}
+
+.setting-card h3{
+  font-size:14px;margin-bottom:7px;
+}
+
+.setting-card p{
+  color:var(--muted);font-size:11px;
+  line-height:1.5;margin-bottom:12px;
+}
+
+.setting-control{
+  width:100%;
+  padding:11px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.setting-button{
+  width:100%;padding:11px;
+  border:1px solid var(--gold);
+  border-radius:8px;background:transparent;
+  color:var(--gold);font-weight:bold;
+}
+
+.back-button{
+  background:transparent;border:0;
+  color:var(--gold);font-size:13px;
+  margin-bottom:20px;
+}
+
 @media(max-width:500px){
-main{margin-top:20px}
-h1{font-size:27px}
-.messages{height:55vh;min-height:280px}
-.input-area{padding:10px}
-.send-button{padding:0 15px}
-.chat-top{align-items:flex-start}
+  main{margin-top:20px}
+  h1{font-size:27px}
+  .messages{height:55vh;min-height:280px}
+  .input-area{padding:10px}
+  .send-button{padding:0 15px}
+  .chat-top{align-items:flex-start}
+  .logo{font-size:19px}
 }
 </style>
 </head>
 
 <body>
+
 <header>
-  <div class="logo">✦ LYRON <span>AI</span></div>
+  <div class="header-left">
+    <button class="menu-button" id="menuButton">☰</button>
+    <div class="logo">✦ LYRON <span>AI</span></div>
+  </div>
   <div class="status" id="systemStatus">● Sistem aktivdir</div>
 </header>
 
+<div class="overlay" id="overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">✦ LYRON AI</div>
+    <button class="close-menu" id="closeMenu">×</button>
+  </div>
+
+  <div id="mainMenu">
+    <button class="menu-item" id="menuNewChat">
+      <span>＋</span> Yeni söhbət
+    </button>
+
+    <button class="menu-item" id="menuSettings">
+      <span>⚙</span> Parametrlər
+    </button>
+
+    <button class="menu-item" id="menuProfile">
+      <span>♙</span> Hesab məlumatları
+    </button>
+
+    <button class="menu-item" id="menuMemory">
+      <span>▤</span> Söhbət yaddaşı
+    </button>
+
+    <div class="sidebar-footer">
+      Zəkanın yeni səviyyəsi.<br><br>
+      LYRON AI © 2026
+    </div>
+  </div>
+
+  <div id="settingsView" class="settings-view hidden">
+    <button class="back-button" id="backMenu">← Menyuya qayıt</button>
+
+    <h2 class="settings-heading">⚙ Parametrlər</h2>
+    <p class="settings-description">
+      LYRON AI tətbiqini öz zövqünə uyğunlaşdır.
+    </p>
+
+    <div class="setting-card">
+      <h3>🎨 Görünüş</h3>
+      <p>Tətbiqin rəng rejimini seç.</p>
+      <select class="setting-control" id="themeSelect">
+        <option value="dark">Qaranlıq rejim</option>
+        <option value="light">Açıq rejim</option>
+      </select>
+    </div>
+
+    <div class="setting-card">
+      <h3>🔠 Yazı ölçüsü</h3>
+      <p>Söhbətlərdə istifadə olunan yazı ölçüsünü dəyiş.</p>
+      <select class="setting-control" id="fontSelect">
+        <option value="13px">Kiçik</option>
+        <option value="14px">Normal</option>
+        <option value="16px">Böyük</option>
+        <option value="18px">Çox böyük</option>
+      </select>
+    </div>
+
+    <div class="setting-card">
+      <h3>🌐 Tətbiq dili</h3>
+      <p>Hazırda LYRON AI Azərbaycan dilində işləyir.</p>
+      <select class="setting-control" disabled>
+        <option>Azərbaycan dili</option>
+      </select>
+    </div>
+
+    <div class="setting-card">
+      <h3>🧠 Yaddaş</h3>
+      <p>Söhbət tarixçəni idarə et. Profil yaddaşı ayrıca saxlanılır.</p>
+      <button class="setting-button" id="settingsMemory">
+        Söhbət yaddaşını təmizlə
+      </button>
+    </div>
+
+    <div class="setting-card">
+      <h3>ℹ Haqqında</h3>
+      <p>
+        LYRON AI — Zəkanın yeni səviyyəsi.<br>
+        Versiya: 1.0<br>
+        Süni intellekt köməkçisi.
+      </p>
+    </div>
+  </div>
+
+  <div id="profileView" class="settings-view hidden">
+    <button class="back-button" id="backProfile">← Menyuya qayıt</button>
+    <h2 class="settings-heading">♙ Hesab məlumatları</h2>
+
+    <div class="setting-card">
+      <h3>E-poçt ünvanı</h3>
+      <p id="profileEmail">Hesab məlumatı yüklənir...</p>
+    </div>
+
+    <button class="setting-button" id="settingsLogout">
+      Hesabdan çıxış
+    </button>
+  </div>
+
+  <div id="memoryView" class="settings-view hidden">
+    <button class="back-button" id="backMemory">← Menyuya qayıt</button>
+    <h2 class="settings-heading">▤ Söhbət yaddaşı</h2>
+
+    <div class="setting-card">
+      <h3>Söhbət tarixçəsi</h3>
+      <p>
+        Söhbətlərin bulud yaddaşında saxlanılır.
+        Tarixçəni silmək profil yaddaşını silmir.
+      </p>
+      <button class="setting-button" id="memoryClearButton">
+        Söhbətləri sil
+      </button>
+    </div>
+  </div>
+
+</aside>
+
 <main>
-<section class="hero">
-  <div class="emblem">✧</div>
-  <h1>LYRON <span>AI</span></h1>
-  <p class="subtitle">Zəkanın yeni səviyyəsi.</p>
-</section>
+  <section class="hero">
+    <div class="emblem">✧</div>
+    <h1>LYRON <span>AI</span></h1>
+    <p class="subtitle">Zəkanın yeni səviyyəsi.</p>
+  </section>
 
-<section class="panel" id="authPanel">
-  <h2>LYRON AI hesabı</h2>
-  <input id="emailInput" type="email" placeholder="E-poçt ünvanı" autocomplete="email">
-  <input id="passwordInput" type="password" placeholder="Şifrə" autocomplete="current-password">
-  <div class="auth-buttons">
-    <button id="loginButton">Daxil ol</button>
-    <button id="signupButton" class="secondary">Qeydiyyat</button>
-  </div>
-  <p id="authMessage">Davam etmək üçün hesabınıza daxil olun.</p>
-</section>
+  <section class="panel" id="authPanel">
+    <h2>LYRON AI hesabı</h2>
+    <input id="emailInput" type="email" placeholder="E-poçt ünvanı" autocomplete="email">
+    <input id="passwordInput" type="password" placeholder="Şifrə" autocomplete="current-password">
+    <div class="auth-buttons">
+      <button id="loginButton">Daxil ol</button>
+      <button id="signupButton" class="secondary">Qeydiyyat</button>
+    </div>
+    <p id="authMessage">Davam etmək üçün hesabınıza daxil olun.</p>
+  </section>
 
-<section id="chatSection" class="hidden">
-  <div class="account-bar">
-    <span id="accountEmail"></span>
-    <button class="small-button" id="logoutButton">Hesabdan çıx</button>
-  </div>
+  <section id="chatSection" class="hidden">
+    <div class="account-bar">
+      <span id="accountEmail"></span>
+      <button class="small-button" id="logoutButton">Hesabdan çıx</button>
+    </div>
 
-  <div class="chat">
-    <div class="chat-top">
-      <div class="chat-title">LYRON AI · Bulud yaddaşı aktivdir</div>
-      <div class="chat-actions">
-        <button class="new-chat-button" id="newChatButton">＋ Yeni söhbət</button>
-        <button class="clear-button" id="clearButton">Yaddaşı təmizlə</button>
+    <div class="chat">
+      <div class="chat-top">
+        <div class="chat-title">LYRON AI · Bulud yaddaşı aktivdir</div>
+        <div class="chat-actions">
+          <button class="new-chat-button" id="newChatButton">＋ Yeni söhbət</button>
+          <button class="clear-button" id="clearButton">Yaddaşı təmizlə</button>
+        </div>
+      </div>
+
+      <div class="messages" id="messages"></div>
+
+      <div class="input-area">
+        <input id="userInput" type="text" placeholder="Mesajınızı yazın..." autocomplete="off">
+        <button class="send-button" id="sendButton">Göndər</button>
       </div>
     </div>
+  </section>
 
-    <div class="messages" id="messages"></div>
-
-    <div class="input-area">
-      <input id="userInput" type="text" placeholder="Mesajınızı yazın..." autocomplete="off">
-      <button class="send-button" id="sendButton">Göndər</button>
-    </div>
-  </div>
-</section>
-
-<footer>LYRON AI © 2026 — Zəkanın yeni səviyyəsi.</footer>
+  <footer>LYRON AI © 2026 — Zəkanın yeni səviyyəsi.</footer>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -133,9 +485,113 @@ const input = document.getElementById("userInput");
 const sendButton = document.getElementById("sendButton");
 const newChatButton = document.getElementById("newChatButton");
 
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+
 function showAuthMessage(text) {
   authMessage.textContent = text;
 }
+
+/* MENYU */
+
+function openMenu() {
+  sidebar.classList.add("open");
+  overlay.classList.add("open");
+}
+
+function closeMenu() {
+  sidebar.classList.remove("open");
+  overlay.classList.remove("open");
+}
+
+function showMenuView(view) {
+  document.getElementById("mainMenu").classList.add("hidden");
+  document.getElementById("settingsView").classList.add("hidden");
+  document.getElementById("profileView").classList.add("hidden");
+  document.getElementById("memoryView").classList.add("hidden");
+
+  document.getElementById(view).classList.remove("hidden");
+}
+
+/* PARAMETRLƏR */
+
+function loadSettings() {
+  const theme = localStorage.getItem("lyronTheme") || "dark";
+  const font = localStorage.getItem("lyronFont") || "14px";
+
+  document.body.classList.toggle("light", theme === "light");
+  document.getElementById("themeSelect").value = theme;
+  document.getElementById("fontSelect").value = font;
+
+  document.documentElement.style.setProperty("--chat-size", font);
+}
+
+document.getElementById("themeSelect").addEventListener("change", event => {
+  const theme = event.target.value;
+
+  localStorage.setItem("lyronTheme", theme);
+  document.body.classList.toggle("light", theme === "light");
+});
+
+document.getElementById("fontSelect").addEventListener("change", event => {
+  const font = event.target.value;
+
+  localStorage.setItem("lyronFont", font);
+  document.documentElement.style.setProperty("--chat-size", font);
+});
+
+document.getElementById("menuButton").addEventListener("click", openMenu);
+document.getElementById("closeMenu").addEventListener("click", closeMenu);
+overlay.addEventListener("click", closeMenu);
+
+document.getElementById("menuSettings").addEventListener("click", () => {
+  showMenuView("settingsView");
+});
+
+document.getElementById("menuProfile").addEventListener("click", () => {
+  document.getElementById("profileEmail").textContent =
+    currentUser?.email || "Hesab məlumatı yoxdur";
+
+  showMenuView("profileView");
+});
+
+document.getElementById("menuMemory").addEventListener("click", () => {
+  showMenuView("memoryView");
+});
+
+document.getElementById("backMenu").addEventListener("click", () => {
+  showMenuView("mainMenu");
+});
+
+document.getElementById("backProfile").addEventListener("click", () => {
+  showMenuView("mainMenu");
+});
+
+document.getElementById("backMemory").addEventListener("click", () => {
+  showMenuView("mainMenu");
+});
+
+document.getElementById("menuNewChat").addEventListener("click", () => {
+  closeMenu();
+  startNewChat();
+});
+
+document.getElementById("settingsLogout").addEventListener("click", () => {
+  closeMenu();
+  logout();
+});
+
+document.getElementById("settingsMemory").addEventListener("click", () => {
+  closeMenu();
+  clearHistory();
+});
+
+document.getElementById("memoryClearButton").addEventListener("click", () => {
+  closeMenu();
+  clearHistory();
+});
+
+/* SÖHBƏT */
 
 function renderMessage(role, content) {
   const msg = document.createElement("div");
@@ -225,7 +681,6 @@ async function loadCloudHistory() {
       }
     });
 
-  // Ən son yeni söhbət markerindən sonrakı mesajları götür.
   let lastMarker = -1;
 
   parsed.forEach((item, index) => {
@@ -293,6 +748,8 @@ async function activateAccount(user) {
     activationInProgress = false;
   }
 }
+
+/* GİRİŞ VƏ QEYDİYYAT */
 
 async function login() {
   const email = document.getElementById("emailInput").value.trim();
@@ -365,6 +822,8 @@ async function logout() {
   showAuthMessage("Hesabdan çıxış edildi.");
 }
 
+/* YENİ SÖHBƏT */
+
 async function startNewChat() {
   if (!currentUser || isSending) return;
 
@@ -377,7 +836,6 @@ async function startNewChat() {
   newChatButton.disabled = true;
 
   try {
-    // Bu marker əvvəlki söhbəti saxlayır və yenisini ayırır.
     await saveCloudMessage({
       role: "system",
       content: NEW_CHAT_MARKER
@@ -395,6 +853,8 @@ async function startNewChat() {
     newChatButton.disabled = false;
   }
 }
+
+/* MESAJ GÖNDƏRMƏ */
 
 async function sendMessage() {
   if (isSending || !currentUser) return;
@@ -473,6 +933,8 @@ async function sendMessage() {
   }
 }
 
+/* YADDAŞI TƏMİZLƏ */
+
 async function clearHistory() {
   if (!currentUser || isSending) return;
 
@@ -499,19 +961,24 @@ async function clearHistory() {
   alert("Bulud söhbətləri təmizləndi. Profil yaddaşı ayrıca saxlanılır.");
 }
 
+/* DÜYMƏLƏR */
+
 document.getElementById("loginButton").addEventListener("click", login);
 document.getElementById("signupButton").addEventListener("click", signup);
 document.getElementById("logoutButton").addEventListener("click", logout);
 document.getElementById("clearButton").addEventListener("click", clearHistory);
 newChatButton.addEventListener("click", startNewChat);
-
 sendButton.addEventListener("click", sendMessage);
 
 input.addEventListener("keydown", event => {
   if (event.key === "Enter") sendMessage();
 });
 
+/* TƏTBİQİ BAŞLAT */
+
 async function startApp() {
+  loadSettings();
+
   const { data, error } = await db.auth.getSession();
 
   if (error) {
