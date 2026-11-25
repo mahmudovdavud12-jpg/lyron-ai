@@ -8,212 +8,49 @@
 <title>LYRON AI — Zəkanın yeni səviyyəsi</title>
 
 <style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  background: #090909;
-  color: #f5f0e5;
-  font-family: Arial, sans-serif;
-  min-height: 100vh;
-}
-
-header {
-  height: 70px;
-  padding: 0 22px;
-  border-bottom: 1px solid #292319;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  color: #d6ad55;
-  font-size: 23px;
-  font-weight: bold;
-  letter-spacing: 2px;
-}
-
-.logo span {
-  color: white;
-}
-
-.status {
-  color: #b99a5b;
-  font-size: 11px;
-}
-
-main {
-  max-width: 780px;
-  margin: 45px auto;
-  padding: 16px;
-}
-
-.hero {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.emblem {
-  color: #d6ad55;
-  font-size: 38px;
-  margin-bottom: 10px;
-}
-
-h1 {
-  font-size: 31px;
-  letter-spacing: 2px;
-  margin-bottom: 8px;
-}
-
-h1 span {
-  color: #d6ad55;
-}
-
-.subtitle {
-  color: #888;
-  font-size: 13px;
-}
-
-.chat {
-  border: 1px solid #40351f;
-  border-radius: 14px;
-  background: #101010;
-  overflow: hidden;
-}
-
-.chat-top {
-  padding: 15px 18px;
-  border-bottom: 1px solid #292319;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.chat-title {
-  font-size: 13px;
-  color: #d6ad55;
-}
-
-.clear-button {
-  background: transparent;
-  border: 1px solid #514329;
-  color: #aaa;
-  padding: 8px 11px;
-  border-radius: 7px;
-  font-size: 11px;
-  cursor: pointer;
-}
-
-.clear-button:hover {
-  color: #d6ad55;
-  border-color: #d6ad55;
-}
-
-.messages {
-  height: 390px;
-  overflow-y: auto;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.message {
-  max-width: 88%;
-  padding: 12px 14px;
-  border-radius: 10px;
-  font-size: 14px;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.bot {
-  align-self: flex-start;
-  background: #1b1b1b;
-  border-left: 2px solid #d6ad55;
-}
-
-.user {
-  align-self: flex-end;
-  background: #292319;
-  border-right: 2px solid #d6ad55;
-}
-
-.input-area {
-  padding: 14px;
-  border-top: 1px solid #292319;
-  display: flex;
-  gap: 10px;
-}
-
-input {
-  flex: 1;
-  min-width: 0;
-  padding: 14px;
-  border: 1px solid #40351f;
-  border-radius: 9px;
-  background: #080808;
-  color: white;
-  outline: none;
-  font-size: 14px;
-}
-
-input:focus {
-  border-color: #d6ad55;
-}
-
-.send-button {
-  padding: 0 20px;
-  background: #c49b48;
-  color: #080808;
-  border: none;
-  border-radius: 9px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.send-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.send-button:hover:not(:disabled) {
-  background: #e0bd70;
-}
-
-footer {
-  text-align: center;
-  color: #666;
-  margin-top: 25px;
-  font-size: 11px;
-}
-
-@media(max-width: 500px) {
-  main {
-    margin-top: 25px;
-  }
-
-  h1 {
-    font-size: 27px;
-  }
-
-  .messages {
-    height: 55vh;
-    min-height: 280px;
-  }
-
-  .input-area {
-    padding: 10px;
-  }
-
-  .send-button {
-    padding: 0 15px;
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#090909;color:#f5f0e5;font-family:Arial,sans-serif;min-height:100vh}
+header{height:70px;padding:0 22px;border-bottom:1px solid #292319;display:flex;align-items:center;justify-content:space-between}
+.logo{color:#d6ad55;font-size:23px;font-weight:bold;letter-spacing:2px}
+.logo span{color:white}
+.status{color:#b99a5b;font-size:11px}
+main{max-width:780px;margin:35px auto;padding:16px}
+.hero{text-align:center;margin-bottom:25px}
+.emblem{color:#d6ad55;font-size:38px;margin-bottom:10px}
+h1{font-size:31px;letter-spacing:2px;margin-bottom:8px}
+h1 span{color:#d6ad55}
+.subtitle{color:#888;font-size:13px}
+.panel,.chat{border:1px solid #40351f;border-radius:14px;background:#101010;overflow:hidden}
+.panel{max-width:430px;margin:0 auto 20px;padding:22px}
+.panel h2{color:#d6ad55;font-size:18px;margin-bottom:16px;text-align:center}
+.panel input{width:100%;margin-bottom:12px}
+input{padding:14px;border:1px solid #40351f;border-radius:9px;background:#080808;color:white;outline:none;font-size:14px}
+input:focus{border-color:#d6ad55}
+.auth-buttons{display:flex;gap:10px}
+button{cursor:pointer}
+.auth-buttons button{flex:1;padding:13px 8px;border-radius:8px;border:1px solid #c49b48;background:#c49b48;color:#080808;font-weight:bold}
+.auth-buttons button.secondary{background:transparent;color:#d6ad55}
+#authMessage{font-size:12px;color:#d6ad55;margin-top:14px;line-height:1.5;text-align:center}
+.account-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;font-size:12px;color:#b99a5b}
+.small-button,.clear-button{background:transparent;border:1px solid #514329;color:#aaa;padding:8px 11px;border-radius:7px;font-size:11px}
+.chat-top{padding:15px 18px;border-bottom:1px solid #292319;display:flex;align-items:center;justify-content:space-between}
+.chat-title{font-size:13px;color:#d6ad55}
+.messages{height:390px;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
+.message{max-width:88%;padding:12px 14px;border-radius:10px;font-size:14px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.bot{align-self:flex-start;background:#1b1b1b;border-left:2px solid #d6ad55}
+.user{align-self:flex-end;background:#292319;border-right:2px solid #d6ad55}
+.input-area{padding:14px;border-top:1px solid #292319;display:flex;gap:10px}
+.input-area input{flex:1;min-width:0;margin:0}
+.send-button{padding:0 20px;background:#c49b48;color:#080808;border:0;border-radius:9px;font-weight:bold}
+.send-button:disabled{opacity:.5;cursor:not-allowed}
+footer{text-align:center;color:#666;margin-top:25px;font-size:11px}
+.hidden{display:none!important}
+@media(max-width:500px){
+main{margin-top:20px}
+h1{font-size:27px}
+.messages{height:55vh;min-height:280px}
+.input-area{padding:10px}
+.send-button{padding:0 15px}
 }
 </style>
 </head>
@@ -222,21 +59,43 @@ footer {
 
 <header>
   <div class="logo">✦ LYRON <span>AI</span></div>
-  <div class="status">● Sistem aktivdir</div>
+  <div class="status" id="systemStatus">● Sistem aktivdir</div>
 </header>
 
 <main>
+<section class="hero">
+  <div class="emblem">✧</div>
+  <h1>LYRON <span>AI</span></h1>
+  <p class="subtitle">Zəkanın yeni səviyyəsi.</p>
+</section>
 
-  <section class="hero">
-    <div class="emblem">✧</div>
-    <h1>LYRON <span>AI</span></h1>
-    <p class="subtitle">Zəkanın yeni səviyyəsi.</p>
-  </section>
+<section class="panel" id="authPanel">
+  <h2>LYRON AI hesabı</h2>
 
-  <section class="chat">
+  <input id="emailInput" type="email"
+    placeholder="E-poçt ünvanı" autocomplete="email">
 
+  <input id="passwordInput" type="password"
+    placeholder="Şifrə" autocomplete="current-password">
+
+  <div class="auth-buttons">
+    <button id="loginButton">Daxil ol</button>
+    <button id="signupButton" class="secondary">Qeydiyyat</button>
+  </div>
+
+  <p id="authMessage">Davam etmək üçün hesabınıza daxil olun.</p>
+</section>
+
+<section id="chatSection" class="hidden">
+
+  <div class="account-bar">
+    <span id="accountEmail"></span>
+    <button class="small-button" id="logoutButton">Hesabdan çıx</button>
+  </div>
+
+  <div class="chat">
     <div class="chat-top">
-      <div class="chat-title">LYRON AI · Söhbət</div>
+      <div class="chat-title">LYRON AI · Bulud yaddaşı aktivdir</div>
       <button class="clear-button" id="clearButton">
         Yaddaşı təmizlə
       </button>
@@ -245,45 +104,42 @@ footer {
     <div class="messages" id="messages"></div>
 
     <div class="input-area">
-      <input
-        id="userInput"
-        type="text"
-        placeholder="Mesajınızı yazın..."
-        autocomplete="off"
-      >
-      <button class="send-button" id="sendButton">
-        Göndər
-      </button>
+      <input id="userInput" type="text"
+        placeholder="Mesajınızı yazın..." autocomplete="off">
+      <button class="send-button" id="sendButton">Göndər</button>
     </div>
+  </div>
+</section>
 
-  </section>
-
-  <footer>
-    LYRON AI © 2026 — Zəkanın yeni səviyyəsi.
-  </footer>
-
+<footer>LYRON AI © 2026 — Zəkanın yeni səviyyəsi.</footer>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+const SUPABASE_URL = "https://gqvozgvmxtwacsnodeib.supabase.co";
+const SUPABASE_KEY = "sb_publishable_XLiztc1zc5VIaaVdn7_xWA_CI_1EFOi";
+
 const STORAGE_KEY = "lyronHistory";
 
+const db = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let currentUser = null;
 let chatHistory = [];
 let isSending = false;
 
+const authPanel = document.getElementById("authPanel");
+const chatSection = document.getElementById("chatSection");
+const authMessage = document.getElementById("authMessage");
 const messages = document.getElementById("messages");
 const input = document.getElementById("userInput");
 const sendButton = document.getElementById("sendButton");
-const clearButton = document.getElementById("clearButton");
 
-function saveHistory() {
-  try {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(chatHistory)
-    );
-  } catch (error) {
-    console.error("Yaddaş xətası:", error);
-  }
+function showAuthMessage(text) {
+  authMessage.textContent = text;
 }
 
 function renderMessage(role, content) {
@@ -298,25 +154,7 @@ function renderMessage(role, content) {
   messages.appendChild(msg);
 }
 
-function loadHistory() {
-  try {
-    const saved = JSON.parse(
-      localStorage.getItem(STORAGE_KEY) || "[]"
-    );
-
-    if (!Array.isArray(saved)) {
-      chatHistory = [];
-    } else {
-      chatHistory = saved.filter(item =>
-        item &&
-        ["user", "assistant"].includes(item.role) &&
-        typeof item.content === "string"
-      ).slice(-100);
-    }
-  } catch (error) {
-    chatHistory = [];
-  }
-
+function renderHistory() {
   messages.innerHTML = "";
 
   if (chatHistory.length === 0) {
@@ -333,35 +171,238 @@ function loadHistory() {
   messages.scrollTop = messages.scrollHeight;
 }
 
+function saveLocalHistory() {
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(chatHistory)
+  );
+}
+
+function getLocalHistory() {
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem(STORAGE_KEY) || "[]"
+    );
+
+    if (!Array.isArray(saved)) return [];
+
+    return saved.filter(item =>
+      item &&
+      ["user", "assistant"].includes(item.role) &&
+      typeof item.content === "string"
+    ).slice(-100);
+
+  } catch {
+    return [];
+  }
+}
+
+async function saveCloudMessage(item) {
+  if (!currentUser) return;
+
+  const { error } = await db
+    .from("lyron_memories")
+    .insert({
+      user_id: currentUser.id,
+      content: JSON.stringify(item)
+    });
+
+  if (error) {
+    console.error("Bulud yaddaşı xətası:", error);
+    throw error;
+  }
+}
+
+async function loadCloudHistory() {
+  messages.innerHTML = "";
+  renderMessage("assistant", "Bulud yaddaşı yoxlanılır...");
+
+  const { data, error } = await db
+    .from("lyron_memories")
+    .select("content, created_at")
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  if (error) {
+    throw error;
+  }
+
+  const cloudHistory = (data || [])
+    .reverse()
+    .map(row => {
+      try {
+        const item = JSON.parse(row.content);
+
+        if (
+          item &&
+          ["user", "assistant"].includes(item.role) &&
+          typeof item.content === "string"
+        ) {
+          return item;
+        }
+      } catch {}
+
+      return null;
+    })
+    .filter(Boolean);
+
+  if (cloudHistory.length === 0) {
+    const localHistory = getLocalHistory();
+
+    if (localHistory.length > 0) {
+      const records = localHistory.map(item => ({
+        user_id: currentUser.id,
+        content: JSON.stringify(item)
+      }));
+
+      const { error: insertError } = await db
+        .from("lyron_memories")
+        .insert(records);
+
+      if (insertError) throw insertError;
+
+      chatHistory = localHistory;
+    } else {
+      chatHistory = [];
+    }
+  } else {
+    chatHistory = cloudHistory;
+  }
+
+  saveLocalHistory();
+  renderHistory();
+}
+
+async function activateAccount(user) {
+  currentUser = user;
+
+  authPanel.classList.add("hidden");
+  chatSection.classList.remove("hidden");
+
+  document.getElementById("accountEmail").textContent =
+    user.email || "LYRON hesabı";
+
+  try {
+    await loadCloudHistory();
+    document.getElementById("systemStatus").textContent =
+      "● Bulud yaddaşı aktivdir";
+  } catch (error) {
+    renderHistory();
+    alert(
+      "Bulud yaddaşına qoşulmaq mümkün olmadı: " +
+      error.message
+    );
+  }
+}
+
+async function login() {
+  const email = document.getElementById("emailInput").value.trim();
+  const password = document.getElementById("passwordInput").value;
+
+  if (!email || !password) {
+    showAuthMessage("E-poçt və şifrəni daxil edin.");
+    return;
+  }
+
+  showAuthMessage("Hesaba giriş edilir...");
+
+  const { data, error } = await db.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    showAuthMessage("Giriş xətası: " + error.message);
+    return;
+  }
+
+  await activateAccount(data.user);
+}
+
+async function signup() {
+  const email = document.getElementById("emailInput").value.trim();
+  const password = document.getElementById("passwordInput").value;
+
+  if (!email || !password) {
+    showAuthMessage("E-poçt və şifrəni daxil edin.");
+    return;
+  }
+
+  if (password.length < 6) {
+    showAuthMessage("Şifrə ən azı 6 simvol olmalıdır.");
+    return;
+  }
+
+  showAuthMessage("Hesab yaradılır...");
+
+  const { data, error } = await db.auth.signUp({
+    email,
+    password
+  });
+
+  if (error) {
+    showAuthMessage("Qeydiyyat xətası: " + error.message);
+    return;
+  }
+
+  if (data.session && data.user) {
+    await activateAccount(data.user);
+  } else {
+    showAuthMessage(
+      "Qeydiyyat tamamlandı! E-poçtunuza təsdiq məktubu göndərilib. Məktubdakı linkə daxil olun, sonra hesabınıza giriş edin."
+    );
+  }
+}
+
+async function logout() {
+  const { error } = await db.auth.signOut();
+
+  if (error) {
+    alert("Çıxış xətası: " + error.message);
+    return;
+  }
+
+  currentUser = null;
+  chatHistory = [];
+
+  chatSection.classList.add("hidden");
+  authPanel.classList.remove("hidden");
+
+  showAuthMessage("Hesabdan çıxış edildi.");
+}
+
 async function sendMessage() {
-  if (isSending) return;
+  if (isSending || !currentUser) return;
 
   const text = input.value.trim();
-
   if (!text) return;
 
   isSending = true;
   sendButton.disabled = true;
+
+  const previousHistory = [...chatHistory];
 
   chatHistory.push({
     role: "user",
     content: text
   });
 
-  renderMessage("user", text);
-
+  renderHistory();
   input.value = "";
-
-  saveHistory();
+  saveLocalHistory();
 
   const loading = document.createElement("div");
   loading.className = "message bot";
   loading.textContent = "LYRON AI düşünür...";
-
   messages.appendChild(loading);
   messages.scrollTop = messages.scrollHeight;
 
   try {
+    await saveCloudMessage({
+      role: "user",
+      content: text
+    });
+
     const response = await fetch("/api/chat", {
       method: "POST",
       headers: {
@@ -369,16 +410,14 @@ async function sendMessage() {
       },
       body: JSON.stringify({
         message: text,
-        history: chatHistory.slice(0, -1)
+        history: previousHistory.slice(-10)
       })
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(
-        data.error || "AI bağlantı xətası"
-      );
+      throw new Error(data.error || "AI bağlantı xətası");
     }
 
     if (typeof data.answer !== "string") {
@@ -387,17 +426,25 @@ async function sendMessage() {
 
     loading.textContent = "LYRON AI: " + data.answer;
 
-    chatHistory.push({
+    const assistantMessage = {
       role: "assistant",
       content: data.answer
-    });
+    };
 
+    chatHistory.push(assistantMessage);
     chatHistory = chatHistory.slice(-100);
-    saveHistory();
+
+    await saveCloudMessage(assistantMessage);
+    saveLocalHistory();
 
   } catch (error) {
-    loading.textContent =
-      "LYRON AI: " + error.message;
+    loading.textContent = "LYRON AI: " + error.message;
+
+    if (chatHistory.length > 0) {
+      chatHistory = chatHistory.slice(0, -1);
+    }
+
+    saveLocalHistory();
   } finally {
     isSending = false;
     sendButton.disabled = false;
@@ -406,31 +453,70 @@ async function sendMessage() {
   }
 }
 
-function clearHistory() {
+async function clearHistory() {
+  if (!currentUser) return;
+
   const confirmed = confirm(
-    "Bütün söhbət tarixçəsini silmək istəyirsiniz?"
+    "Bu hesabın bütün bulud söhbətlərini silmək istəyirsiniz?"
   );
 
   if (!confirmed) return;
 
+  const { error } = await db
+    .from("lyron_memories")
+    .delete()
+    .gt("created_at", "1970-01-01T00:00:00Z");
+
+  if (error) {
+    alert("Yaddaşı silmək mümkün olmadı: " + error.message);
+    return;
+  }
+
   chatHistory = [];
-
   localStorage.removeItem(STORAGE_KEY);
+  renderHistory();
 
-  loadHistory();
+  alert("Bulud yaddaşı təmizləndi.");
 }
+
+document.getElementById("loginButton")
+  .addEventListener("click", login);
+
+document.getElementById("signupButton")
+  .addEventListener("click", signup);
+
+document.getElementById("logoutButton")
+  .addEventListener("click", logout);
+
+document.getElementById("clearButton")
+  .addEventListener("click", clearHistory);
 
 sendButton.addEventListener("click", sendMessage);
 
 input.addEventListener("keydown", event => {
-  if (event.key === "Enter") {
-    sendMessage();
+  if (event.key === "Enter") sendMessage();
+});
+
+async function startApp() {
+  const { data, error } = await db.auth.getSession();
+
+  if (error) {
+    showAuthMessage("Sessiya xətası: " + error.message);
+    return;
+  }
+
+  if (data.session) {
+    await activateAccount(data.session.user);
+  }
+}
+
+db.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_IN" && session) {
+    setTimeout(() => activateAccount(session.user), 0);
   }
 });
 
-clearButton.addEventListener("click", clearHistory);
-
-loadHistory();
+startApp();
 </script>
 
 </body>
