@@ -205,11 +205,17 @@ footer {
 
 <script>
 
-let chatHistory = [];
+let chatHistory = JSON.parse(localStorage.getItem("lyronHistory")) || [];
 
 async function sendMessage() {
   const input = document.getElementById("userInput");
   const messages = document.getElementById("messages");
+  chatHistory.forEach(item => {
+  const msg = document.createElement("div");
+  msg.className = item.role === "user" ? "message user" : "message bot";
+  msg.textContent = (item.role === "user" ? "Siz: " : "LYRON AI: ") + item.content;
+  messages.appendChild(msg);
+});
   const text = input.value.trim();
 
   if (!text) return;
@@ -250,7 +256,7 @@ async function sendMessage() {
       { role: "user", content: text },
       { role: "assistant", content: data.answer }
     );
-
+localStorage.setItem("lyronHistory", JSON.stringify(chatHistory));
   } catch (error) {
     loading.textContent = "LYRON AI: " + error.message;
   }
