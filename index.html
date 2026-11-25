@@ -217,6 +217,88 @@ h1{font-size:30px}
 .message{max-width:90%}
 .panel{padding:23px 17px}
 }
+  
+/* LYRON PREMIUM VOICE BUTTONS */
+
+#voiceButton {
+  width: 54px !important;
+  height: 54px !important;
+  min-width: 54px;
+  border-radius: 50% !important;
+  border: 1px solid rgba(220, 178, 90, .65) !important;
+  background: linear-gradient(145deg, #292014, #100e0a) !important;
+  color: #e8bd70 !important;
+  font-size: 23px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 18px rgba(218, 174, 91, .13),
+              inset 0 0 12px rgba(218, 174, 91, .08);
+  transition: .25s ease;
+  position: relative;
+}
+
+#voiceButton:active {
+  transform: scale(.92);
+}
+
+#voiceButton.listening {
+  background: linear-gradient(145deg, #76521d, #291b0b) !important;
+  color: #fff0ca !important;
+  border-color: #f2c879 !important;
+  box-shadow: 0 0 0 7px rgba(218, 174, 91, .10),
+              0 0 25px rgba(218, 174, 91, .55);
+  animation: lyronMicPulse 1.3s infinite;
+}
+
+@keyframes lyronMicPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 5px rgba(218, 174, 91, .10),
+                0 0 20px rgba(218, 174, 91, .35);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(218, 174, 91, .04),
+                0 0 32px rgba(218, 174, 91, .7);
+  }
+}
+
+#speakerButton {
+  width: 43px !important;
+  height: 43px !important;
+  min-width: 43px;
+  border-radius: 50% !important;
+  border: 1px solid rgba(220, 178, 90, .3) !important;
+  background: rgba(220, 178, 90, .07) !important;
+  color: #e8bd70 !important;
+  font-size: 18px !important;
+  transition: .25s ease;
+}
+
+#speakerButton:active {
+  transform: scale(.9);
+}
+
+#speakerButton.off {
+  opacity: .45;
+  filter: grayscale(1);
+}
+
+#voiceStatus {
+  color: #e8bd70;
+  font-size: 13px;
+  text-align: center;
+  letter-spacing: .3px;
+}
+
+#voiceStatus.show {
+  animation: lyronStatusFade .35s ease;
+}
+
+@keyframes lyronStatusFade {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 </style>
 </head>
 
