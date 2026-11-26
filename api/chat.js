@@ -272,6 +272,28 @@ width:40px!important;min-width:40px!important;height:40px!important;
 .message{max-width:90%}
 .panel{padding:23px 17px}
 }
+  
+#imageButton{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  color:#e8bd70!important;
+  background:#332514!important;
+  border:1px solid #b98b3c!important;
+  align-items:center!important;
+  justify-content:center!important;
+  position:relative!important;
+  z-index:5!important;
+}
+#imageButton svg{
+  display:block!important;
+  width:22px!important;
+  height:22px!important;
+}
+
 </style>
 </head>
 
