@@ -6,15 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#090909">
 <title>LYRON AI — Zəkanın yeni səviyyəsi</title>
-  .composer-actions svg {
-  width: 21px;
-  height: 21px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -29,8 +21,7 @@ color:var(--text);font-family:Arial,sans-serif;min-height:100vh;
 body.light{
 --bg:#f3f0e8;--panel:#fff;--card:#eee9dd;
 --text:#171717;--muted:#666;--border:#d4c39c;
---gold:#9a7023;--user:#e8dfcb;
-background:var(--bg);
+--gold:#9a7023;--user:#e8dfcb;background:var(--bg);
 }
 header{
 height:68px;padding:0 18px;border-bottom:1px solid #d6ad5525;
@@ -39,10 +30,7 @@ background:#090909ed;backdrop-filter:blur(18px);
 position:sticky;top:0;z-index:10;
 }
 .header-left{display:flex;align-items:center;gap:13px}
-.menu-button{
-background:transparent;color:var(--gold);border:0;
-padding:9px;font-size:23px;
-}
+.menu-button{background:transparent;color:var(--gold);border:0;padding:9px;font-size:23px}
 .logo{
 font-size:21px;font-weight:bold;letter-spacing:3px;
 background:linear-gradient(110deg,#fff0b9,#d6ad55,#a87927);
@@ -52,10 +40,7 @@ background:linear-gradient(110deg,#fff0b9,#d6ad55,#a87927);
 .status{color:var(--gold);font-size:10px}
 main{max-width:850px;margin:22px auto;padding:12px}
 .hero{text-align:center;margin-bottom:30px;padding:25px 10px}
-.emblem{
-font-size:55px;color:#edc46d;margin-bottom:10px;
-text-shadow:0 0 28px #d6ad5580;
-}
+.emblem{font-size:55px;color:#edc46d;margin-bottom:10px;text-shadow:0 0 28px #d6ad5580}
 h1{
 font-size:37px;letter-spacing:5px;margin-bottom:9px;
 background:linear-gradient(100deg,#fff0b9,#d6ad55,#a87927);
@@ -78,16 +63,11 @@ input:focus,select:focus{border-color:var(--gold)}
 button{cursor:pointer}
 .auth-buttons{display:flex;gap:10px}
 .auth-buttons button{
-flex:1;padding:14px 8px;border-radius:30px;
-border:1px solid var(--gold);
-background:linear-gradient(110deg,#f3d38c,#bd8b36);
-color:#080808;font-weight:bold;
+flex:1;padding:14px 8px;border-radius:30px;border:1px solid var(--gold);
+background:linear-gradient(110deg,#f3d38c,#bd8b36);color:#080808;font-weight:bold;
 }
 .auth-buttons button.secondary{background:transparent;color:var(--gold)}
-#authMessage{
-font-size:12px;color:var(--gold);margin-top:14px;
-line-height:1.5;text-align:center;
-}
+#authMessage{font-size:12px;color:var(--gold);margin-top:14px;line-height:1.5;text-align:center}
 .account-bar{
 display:flex;justify-content:space-between;align-items:center;
 gap:10px;margin-bottom:12px;font-size:12px;color:var(--gold);
@@ -105,8 +85,7 @@ box-shadow:0 15px 55px #0009,0 0 30px #d6ad550c;
 }
 .chat-top{
 padding:16px 18px;border-bottom:1px solid #ffffff0d;
-display:flex;align-items:center;justify-content:space-between;
-gap:10px;flex-wrap:wrap;
+display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
 }
 .chat-title{font-size:12px;color:var(--gold);letter-spacing:1px}
 .chat-actions{display:flex;gap:8px;flex-wrap:wrap}
@@ -129,40 +108,68 @@ align-self:flex-end;background:linear-gradient(145deg,#382c17,#211b12);
 border:1px solid #d6ad5530;border-right:2px solid #e7bd69;
 }
 .input-area{
-padding:13px;background:linear-gradient(180deg,#0b0b0b,#100d08);
-border-top:1px solid #d6ad5525;display:flex;gap:9px;align-items:center;
+display:block;padding:12px;
+background:linear-gradient(180deg,#0b0b0b,#100d08);
+border-top:1px solid #d6ad5525;
 }
-.input-area input{
-flex:1;min-width:0;margin:0;height:48px;
-border-radius:30px;padding-left:17px;background:#111;
+.composer-box{
+width:100%;background:#151515;border:1px solid #72562b;
+border-radius:19px;padding:5px 8px 8px;
+box-shadow:0 0 18px #d6ad5510;transition:border-color .25s,box-shadow .25s;
 }
-.send-button{
-width:45px;min-width:45px;height:45px;
-background:linear-gradient(145deg,#f4d38c,#bd8b36);
-color:#080808;border:0;border-radius:50%;font-size:18px;
+.composer-box:focus-within{border-color:#d6ad55;box-shadow:0 0 18px #d6ad5520}
+.composer-box input{
+display:block;width:100%;height:43px;padding:10px 9px;margin:0;
+border:0;outline:none;background:transparent;color:#f5f0e5;
+font-size:14px;box-shadow:none;
 }
-.send-button:disabled{opacity:.5}
-.voice-button,.speaker-button{
-width:45px;min-width:45px;height:45px;border-radius:50%;
-border:1px solid #b98b3c;background:#111;color:var(--gold);
-font-size:18px;display:flex;align-items:center;justify-content:center;
+.composer-box input:focus{border:0}
+.composer-actions{
+display:flex;align-items:center;justify-content:flex-end;
+gap:9px;padding:3px 2px 0;
 }
-.voice-button.listening{
-background:linear-gradient(145deg,#f4d38c,#bd8b36);
-color:#080808;animation:pulse 1.4s infinite;
+.composer-actions button{
+width:42px!important;height:42px!important;min-width:42px!important;
+display:flex!important;align-items:center!important;justify-content:center!important;
+border-radius:13px!important;padding:0!important;flex-shrink:0;
+box-shadow:none!important;position:static!important;
 }
-.speaker-button.off{opacity:.45}
-@keyframes pulse{
-0%{box-shadow:0 0 0 0 #d6ad5570}
-70%{box-shadow:0 0 0 10px #d6ad5500}
-100%{box-shadow:0 0 0 0 #d6ad5500}
+.composer-actions button svg{
+width:21px;height:21px;fill:none;stroke:currentColor;
+stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+}
+.composer-actions #speakerButton{
+background:#17130d!important;color:#e8bd70!important;
+border:1px solid #72562b!important;
+}
+.composer-actions #voiceButton{
+background:linear-gradient(145deg,#332514,#17110a)!important;
+border:1px solid #b98b3c!important;color:#e8bd70!important;
+}
+.composer-actions #sendButton{
+background:linear-gradient(145deg,#f4d38c,#bd8b36)!important;
+border:none!important;color:#090909!important;font-size:19px!important;
+}
+.composer-actions #voiceButton.listening{
+background:linear-gradient(145deg,#f4d38c,#bd8b36)!important;
+color:#080808!important;border-color:#f4d38c!important;
+animation:lyronMicPulse 1.3s infinite!important;
+}
+.composer-actions #speakerButton.off{opacity:.45;filter:grayscale(1)}
+.composer-actions button:active{transform:scale(.94)}
+@keyframes lyronMicPulse{
+0%,100%{box-shadow:0 0 0 4px #b98b3c20,0 0 15px #b98b3c40}
+50%{box-shadow:0 0 0 10px #b98b3c15,0 0 27px #b98b3c90}
 }
 .voice-status{
-padding:12px;text-align:center;color:var(--gold);
-font-size:12px;border-top:1px solid #d6ad5525;
-background:#d6ad5508;display:none;
+padding:12px;text-align:center;color:var(--gold);font-size:12px;
+border-top:1px solid #d6ad5525;background:#d6ad5508;display:none;
 }
-.voice-status.show{display:block}
+.voice-status.show{display:block;animation:lyronStatusFade .35s ease}
+@keyframes lyronStatusFade{
+from{opacity:0;transform:translateY(5px)}
+to{opacity:1;transform:translateY(0)}
+}
 footer{text-align:center;color:var(--muted);margin-top:25px;font-size:11px}
 .hidden{display:none!important}
 body.logged-in .hero{display:none}
@@ -212,278 +219,23 @@ width:100%;padding:12px;border:1px solid var(--gold);
 border-radius:25px;background:transparent;color:var(--gold);font-weight:bold;
 }
 .back-button{background:transparent;border:0;color:var(--gold);font-size:13px;margin-bottom:20px}
+
 @media(max-width:500px){
 main{margin-top:12px;padding:10px}
 body.logged-in main{margin-top:10px}
 h1{font-size:30px}
 .messages{height:58vh;min-height:300px;padding:17px 12px}
-.input-area{padding:10px;gap:6px}
-.send-button{width:40px;min-width:40px;height:40px}
-.voice-button,.speaker-button{width:40px;min-width:40px;height:40px}
+.input-area{padding:10px}
+.composer-box input{height:42px}
+.composer-actions{gap:7px}
+.composer-actions button{
+width:40px!important;min-width:40px!important;height:40px!important;
+}
 .chat-top{align-items:flex-start}
 .chat-actions{width:100%}
 .chat-actions button{flex:1}
 .message{max-width:90%}
 .panel{padding:23px 17px}
-}
-
-/* LYRON PREMIUM VOICE BUTTONS */
-
-#voiceButton {
-  width: 54px !important;
-  height: 54px !important;
-  min-width: 54px;
-  border-radius: 50% !important;
-  border: 1px solid rgba(220, 178, 90, .65) !important;
-  background: linear-gradient(145deg, #292014, #100e0a) !important;
-  color: #e8bd70 !important;
-  font-size: 23px !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 18px rgba(218, 174, 91, .13),
-              inset 0 0 12px rgba(218, 174, 91, .08);
-  transition: .25s ease;
-  position: relative;
-}
-
-#voiceButton:active {
-  transform: scale(.92);
-}
-
-#voiceButton.listening {
-  background: linear-gradient(145deg, #76521d, #291b0b) !important;
-  color: #fff0ca !important;
-  border-color: #f2c879 !important;
-  box-shadow: 0 0 0 7px rgba(218, 174, 91, .10),
-              0 0 25px rgba(218, 174, 91, .55);
-  animation: lyronMicPulse 1.3s infinite;
-}
-
-@keyframes lyronMicPulse {
-  0%, 100% {
-    box-shadow: 0 0 0 5px rgba(218, 174, 91, .10),
-                0 0 20px rgba(218, 174, 91, .35);
-  }
-  50% {
-    box-shadow: 0 0 0 12px rgba(218, 174, 91, .04),
-                0 0 32px rgba(218, 174, 91, .7);
-  }
-}
-
-#speakerButton {
-  width: 43px !important;
-  height: 43px !important;
-  min-width: 43px;
-  border-radius: 50% !important;
-  border: 1px solid rgba(220, 178, 90, .3) !important;
-  background: rgba(220, 178, 90, .07) !important;
-  color: #e8bd70 !important;
-  font-size: 18px !important;
-  transition: .25s ease;
-}
-
-#speakerButton:active {
-  transform: scale(.9);
-}
-
-#speakerButton.off {
-  opacity: .45;
-  filter: grayscale(1);
-}
-
-#voiceStatus {
-  color: #e8bd70;
-  font-size: 13px;
-  text-align: center;
-  letter-spacing: .3px;
-}
-
-#voiceStatus.show {
-  animation: lyronStatusFade .35s ease;
-}
-
-@keyframes lyronStatusFade {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* YENİ MESAJ KONSOLU */
-.input-area {
-  display:block !important;
-  padding:12px !important;
-  background:linear-gradient(180deg,#0b0b0b,#100d08);
-}
-
-.composer-box {
-  width:100%;
-  background:#151515;
-  border:1px solid #72562b;
-  border-radius:19px;
-  padding:5px 8px 8px;
-  box-shadow:0 0 18px #d6ad5510;
-  transition:border-color .25s,box-shadow .25s;
-}
-
-.composer-box:focus-within {
-  border-color:#d6ad55;
-  box-shadow:0 0 18px #d6ad5520;
-}
-
-.composer-box input {
-  display:block;
-  width:100%;
-  height:43px;
-  padding:10px 9px;
-  margin:0;
-  border:0;
-  outline:none;
-  background:transparent;
-  color:#f5f0e5;
-  font-size:14px;
-  box-shadow:none;
-}
-
-.composer-box input:focus {
-  border:0;
-}
-
-.composer-actions {
-  display:flex;
-  align-items:center;
-  justify-content:flex-end;
-  gap:9px;
-  padding:3px 2px 0;
-}
-
-.composer-actions #speakerButton,
-.composer-actions #voiceButton {
-  width:38px !important;
-  min-width:38px !important;
-  height:38px !important;
-  border-radius:12px !important;
-  font-size:17px !important;
-}
-
-.composer-actions #voiceButton {
-  background:#292014 !important;
-  color:#e8bd70 !important;
-  border:1px solid #9b753a !important;
-}
-
-.composer-actions #voiceButton.listening {
-  background:linear-gradient(145deg,#f4d38c,#bd8b36) !important;
-  color:#080808 !important;
-  border-color:#f4d38c !important;
-  animation:lyronMicPulse 1.3s infinite;
-}
-
-.composer-actions #sendButton {
-  width:38px;
-  min-width:38px;
-  height:38px;
-  border-radius:12px;
-  font-size:18px;
-}
-
-.composer-actions button {
-  flex-shrink:0;
-}
-
-@media(max-width:500px) {
-  .input-area {
-    padding:10px !important;
-  }
-
-  .composer-box input {
-    height:42px;
-  }
-}
-  /* LYRON — DÜYMƏLƏRİN SON DİZAYNI */
-.composer-actions #speakerButton,
-.composer-actions #voiceButton,
-.composer-actions #sendButton {
-  width: 38px !important;
-  min-width: 38px !important;
-  height: 38px !important;
-  border-radius: 11px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-shadow: none !important;
-  position: static !important;
-}
-
-.composer-actions #speakerButton {
-  background: #17130d !important;
-  border: 1px solid #72562b !important;
-  color: #e8bd70 !important;
-}
-
-.composer-actions #voiceButton {
-  background: linear-gradient(145deg,#332514,#17110a) !important;
-  border: 1px solid #b98b3c !important;
-  color: #e8bd70 !important;
-  font-size: 19px !important;
-}
-
-.composer-actions #sendButton {
-  background: linear-gradient(145deg,#f4d38c,#bd8b36) !important;
-  border: none !important;
-  color: #090909 !important;
-}
-
-.composer-actions #voiceButton.listening {
-  animation: lyronMicPulse 1.3s infinite !important;
-}
-  /* LYRON AI — PREMIUM ICON BUTTONS */
-.composer-actions button {
-  width: 42px !important;
-  height: 42px !important;
-  min-width: 42px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  border-radius: 13px !important;
-  padding: 0 !important;
-}
-
-.composer-actions button svg {
-  width: 21px;
-  height: 21px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.composer-actions #voiceButton {
-  background: #21190e !important;
-  color: #e8bd70 !important;
-  border: 1px solid #b98b3c !important;
-}
-
-.composer-actions #speakerButton {
-  background: #17130d !important;
-  color: #e8bd70 !important;
-  border: 1px solid #72562b !important;
-}
-
-.composer-actions #sendButton {
-  background: linear-gradient(145deg,#f4d38c,#bd8b36) !important;
-  color: #090909 !important;
-  border: none !important;
-}
-
-.composer-actions #voiceButton.listening {
-  animation: lyronMicPulse 1.3s infinite;
-}
-
-@keyframes lyronMicPulse {
-  50% {
-    box-shadow: 0 0 0 7px #b98b3c30;
-  }
 }
 </style>
 </head>
@@ -612,29 +364,25 @@ h1{font-size:30px}
 
       <div class="input-area">
         <div class="composer-box">
-          <input
-            id="userInput"
-            type="text"
-            placeholder="LYRON-a mesaj yaz..."
-            autocomplete="off"
-          >
+          <input id="userInput" type="text" placeholder="LYRON-a mesaj yaz..." autocomplete="off">
           <div class="composer-actions">
-             <button class="speaker-button" id="speakerButton" title="Səsli cavabı aktiv/deaktiv et">
-  <svg viewBox="0 0 24 24">
-    <path d="M11 5 6 9H3v6h3l5 4z"/>
-    <path d="M15 8a5 5 0 0 1 0 8"/>
-    <path d="M18 5a9 9 0 0 1 0 14"/>
-  </svg>
-</button>
+            <button class="speaker-button" id="speakerButton" title="Səsli cavabı aktiv/deaktiv et" type="button" aria-label="Səsli cavabı aktiv/deaktiv et">
+              <svg viewBox="0 0 24 24">
+                <path d="M11 5 6 9H3v6h3l5 4z"/>
+                <path d="M15 8a5 5 0 0 1 0 8"/>
+                <path d="M18 5a9 9 0 0 1 0 14"/>
+              </svg>
+            </button>
 
-<button class="voice-button" id="voiceButton" title="Türkcə səsli danışıq">
-  <svg viewBox="0 0 24 24">
-    <rect x="9" y="2" width="6" height="13" rx="3"/>
-    <path d="M5 11a7 7 0 0 0 14 0"/>
-    <path d="M12 18v4M8 22h8"/>
-  </svg>
-</button>
-            <button class="send-button" id="sendButton" title="Göndər">➤</button>
+            <button class="voice-button" id="voiceButton" title="Türkcə səsli danışıq" type="button" aria-label="Mikrofon">
+              <svg viewBox="0 0 24 24">
+                <rect x="9" y="2" width="6" height="13" rx="3"/>
+                <path d="M5 11a7 7 0 0 0 14 0"/>
+                <path d="M12 18v4M8 22h8"/>
+              </svg>
+            </button>
+
+            <button class="send-button" id="sendButton" title="Göndər" type="button">➤</button>
           </div>
         </div>
       </div>
@@ -741,7 +489,6 @@ function startListening() {
   voiceTranscript = "";
   isListening = true;
   voiceButton.classList.add("listening");
-  voiceButton.textContent = "■";
   setVoiceStatus("🎙 Dinləyirəm... Türkcə danışa bilərsən.");
 
   recognition.onresult = event => {
@@ -767,7 +514,6 @@ function startListening() {
   recognition.onend = () => {
     isListening = false;
     voiceButton.classList.remove("listening");
-    voiceButton.textContent = "🎙";
 
     const spokenText = voiceTranscript.trim();
 
@@ -786,7 +532,6 @@ function startListening() {
   } catch (error) {
     isListening = false;
     voiceButton.classList.remove("listening");
-    voiceButton.textContent = "🎙";
     setVoiceStatus("", false);
     alert("Mikrofonu başlatmaq mümkün olmadı.");
   }
@@ -800,7 +545,7 @@ voiceButton.addEventListener("click", () => {
 speakerButton.addEventListener("click", () => {
   speechEnabled = !speechEnabled;
   speakerButton.classList.toggle("off", !speechEnabled);
-  speakerButton.textContent = speechEnabled ? "🔊" : "🔇";
+  speakerButton.setAttribute("aria-pressed", String(speechEnabled));
   if (!speechEnabled) stopSpeaking();
 });
 
