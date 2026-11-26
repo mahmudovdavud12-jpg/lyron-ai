@@ -1,373 +1,1145 @@
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({
-      error: "Yalnız POST sorğusu qəbul edilir."
-    });
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090909">
+<title>LYRON AI — Zəkanın yeni səviyyəsi</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#090909;--panel:#101010;--card:#171717;
+--text:#f5f0e5;--muted:#999;--border:#49391f;
+--gold:#d6ad55;--user:#292319;--chat-size:14px;
+}
+body{
+background:radial-gradient(ellipse at 50% 0%,#241b0c 0%,#090909 48%);
+color:var(--text);font-family:Arial,sans-serif;min-height:100vh;
+}
+body.light{
+--bg:#f3f0e8;--panel:#fff;--card:#eee9dd;
+--text:#171717;--muted:#666;--border:#d4c39c;
+--gold:#9a7023;--user:#e8dfcb;background:var(--bg);
+}
+header{
+height:68px;padding:0 18px;border-bottom:1px solid #d6ad5525;
+display:flex;align-items:center;justify-content:space-between;
+background:#090909ed;backdrop-filter:blur(18px);
+position:sticky;top:0;z-index:10;
+}
+.header-left{display:flex;align-items:center;gap:13px}
+.menu-button{background:transparent;color:var(--gold);border:0;padding:9px;font-size:23px}
+.logo{
+font-size:21px;font-weight:bold;letter-spacing:3px;
+background:linear-gradient(110deg,#fff0b9,#d6ad55,#a87927);
+-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.logo span{color:#eee}
+.status{color:var(--gold);font-size:10px}
+main{max-width:850px;margin:22px auto;padding:12px}
+.hero{text-align:center;margin-bottom:30px;padding:25px 10px}
+.emblem{font-size:55px;color:#edc46d;margin-bottom:10px;text-shadow:0 0 28px #d6ad5580}
+h1{
+font-size:37px;letter-spacing:5px;margin-bottom:9px;
+background:linear-gradient(100deg,#fff0b9,#d6ad55,#a87927);
+-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.subtitle{color:var(--muted);font-size:12px;letter-spacing:1px}
+.panel{
+max-width:430px;margin:0 auto 20px;padding:27px 22px;
+background:linear-gradient(145deg,#17140e,#090909);
+border:1px solid #80612e;border-radius:22px;
+box-shadow:0 15px 55px #0009,0 0 25px #d6ad550b;
+}
+.panel h2{color:var(--gold);font-size:20px;margin-bottom:20px;text-align:center}
+.panel input{width:100%;margin-bottom:12px}
+input,select{
+padding:14px;border:1px solid var(--border);border-radius:12px;
+background:var(--bg);color:var(--text);outline:none;font-size:14px;
+}
+input:focus,select:focus{border-color:var(--gold)}
+button{cursor:pointer}
+.auth-buttons{display:flex;gap:10px}
+.auth-buttons button{
+flex:1;padding:14px 8px;border-radius:30px;border:1px solid var(--gold);
+background:linear-gradient(110deg,#f3d38c,#bd8b36);color:#080808;font-weight:bold;
+}
+.auth-buttons button.secondary{background:transparent;color:var(--gold)}
+#authMessage{font-size:12px;color:var(--gold);margin-top:14px;line-height:1.5;text-align:center}
+.account-bar{
+display:flex;justify-content:space-between;align-items:center;
+gap:10px;margin-bottom:12px;font-size:12px;color:var(--gold);
+}
+.small-button,.clear-button,.new-chat-button{
+background:transparent;border:1px solid var(--border);
+color:var(--muted);padding:9px 12px;border-radius:20px;font-size:11px;
+}
+.new-chat-button{color:var(--gold);border-color:var(--gold)}
+.new-chat-button:disabled,.clear-button:disabled{opacity:.5}
+.chat{
+border:1px solid #80612e;border-radius:22px;
+background:rgba(8,8,8,.94);overflow:hidden;
+box-shadow:0 15px 55px #0009,0 0 30px #d6ad550c;
+}
+.chat-top{
+padding:16px 18px;border-bottom:1px solid #ffffff0d;
+display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+}
+.chat-title{font-size:12px;color:var(--gold);letter-spacing:1px}
+.chat-actions{display:flex;gap:8px;flex-wrap:wrap}
+.messages{
+height:min(62vh,620px);min-height:350px;overflow-y:auto;
+padding:22px 17px;display:flex;flex-direction:column;gap:18px;
+background:radial-gradient(ellipse at 50% 100%,#d6ad5509,transparent 60%);
+}
+.message{
+max-width:88%;padding:14px 17px;border-radius:17px;
+font-size:var(--chat-size)!important;line-height:1.7;
+white-space:pre-wrap;overflow-wrap:anywhere;
+}
+.bot{
+align-self:flex-start;background:linear-gradient(145deg,#1c1a16,#121212);
+border:1px solid #d6ad5520;border-left:2px solid var(--gold);
+}
+.user{
+align-self:flex-end;background:linear-gradient(145deg,#382c17,#211b12);
+border:1px solid #d6ad5530;border-right:2px solid #e7bd69;
+}
+.input-area{
+display:block;padding:12px;
+background:linear-gradient(180deg,#0b0b0b,#100d08);
+border-top:1px solid #d6ad5525;
+}
+.composer-box{
+width:100%;background:#151515;border:1px solid #72562b;
+border-radius:19px;padding:5px 8px 8px;
+box-shadow:0 0 18px #d6ad5510;transition:border-color .25s,box-shadow .25s;
+}
+.composer-box:focus-within{border-color:#d6ad55;box-shadow:0 0 18px #d6ad5520}
+.composer-box input{
+display:block;width:100%;height:43px;padding:10px 9px;margin:0;
+border:0;outline:none;background:transparent;color:#f5f0e5;
+font-size:14px;box-shadow:none;
+}
+.composer-box input:focus{border:0}
+.composer-actions{
+display:flex;align-items:center;justify-content:flex-end;
+gap:9px;padding:3px 2px 0;
+}
+.composer-actions button{
+width:42px!important;height:42px!important;min-width:42px!important;
+display:flex!important;align-items:center!important;justify-content:center!important;
+border-radius:13px!important;padding:0!important;flex-shrink:0;
+box-shadow:none!important;position:static!important;
+}
+.composer-actions button svg{
+width:21px;height:21px;fill:none;stroke:currentColor;
+stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+}
+.composer-actions #speakerButton{
+background:#17130d!important;color:#e8bd70!important;
+border:1px solid #72562b!important;
+}
+.composer-actions #voiceButton{
+background:linear-gradient(145deg,#332514,#17110a)!important;
+border:1px solid #b98b3c!important;color:#e8bd70!important;
+}
+.composer-actions #imageButton{
+background:linear-gradient(145deg,#332514,#17110a)!important;
+border:1px solid #b98b3c!important;color:#e8bd70!important;
+}
+.composer-actions #sendButton{
+background:linear-gradient(145deg,#f4d38c,#bd8b36)!important;
+border:none!important;color:#090909!important;font-size:19px!important;
+}
+.composer-actions #voiceButton.listening{
+background:linear-gradient(145deg,#f4d38c,#bd8b36)!important;
+color:#080808!important;border-color:#f4d38c!important;
+animation:lyronMicPulse 1.3s infinite!important;
+}
+.composer-actions #speakerButton.off{opacity:.45;filter:grayscale(1)}
+.composer-actions button:active{transform:scale(.94)}
+.composer-actions button:disabled{opacity:.45;cursor:not-allowed}
+@keyframes lyronMicPulse{
+0%,100%{box-shadow:0 0 0 4px #b98b3c20,0 0 15px #b98b3c40}
+50%{box-shadow:0 0 0 10px #b98b3c15,0 0 27px #b98b3c90}
+}
+
+/* ŞƏKİL ÖNİZLƏMƏSİ */
+.image-preview{
+display:none;align-items:center;gap:12px;
+padding:10px;margin:5px 2px 9px;
+border:1px solid #72562b;border-radius:13px;
+background:#211a10;
+}
+.image-preview.show{display:flex}
+.image-preview img{
+width:68px;height:68px;object-fit:cover;
+border-radius:9px;border:1px solid #b98b3c;
+}
+.image-preview-info{flex:1;min-width:0}
+.image-preview-info strong{
+display:block;color:#e8bd70;font-size:12px;margin-bottom:5px;
+}
+.image-preview-info span{
+display:block;color:#aaa;font-size:10px;overflow-wrap:anywhere;
+}
+.remove-image{
+width:32px;height:32px;border-radius:9px;
+border:1px solid #72562b;background:#17110a;
+color:#e8bd70;font-size:20px;flex-shrink:0;
+}
+.image-message{
+display:block;width:100%;max-width:230px;
+height:auto;max-height:220px;object-fit:contain;
+margin-top:8px;border-radius:10px;border:1px solid #d6ad5550;
+}
+.voice-status{
+padding:12px;text-align:center;color:var(--gold);font-size:12px;
+border-top:1px solid #d6ad5525;background:#d6ad5508;display:none;
+}
+.voice-status.show{display:block;animation:lyronStatusFade .35s ease}
+@keyframes lyronStatusFade{
+from{opacity:0;transform:translateY(5px)}
+to{opacity:1;transform:translateY(0)}
+}
+footer{text-align:center;color:var(--muted);margin-top:25px;font-size:11px}
+.hidden{display:none!important}
+body.logged-in .hero{display:none}
+body.logged-in main{margin-top:18px}
+
+/* MENYU */
+.overlay{position:fixed;inset:0;background:#000b;z-index:20;display:none}
+.overlay.open{display:block}
+.sidebar{
+position:fixed;top:0;left:0;bottom:0;width:min(320px,85vw);
+background:linear-gradient(150deg,#15120c,#090909);
+border-right:1px solid #80612e;z-index:21;padding:22px;
+transform:translateX(-105%);transition:transform .25s;overflow-y:auto;
+}
+.sidebar.open{transform:translateX(0)}
+.sidebar-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:25px}
+.sidebar-title{color:var(--gold);font-size:20px;font-weight:bold}
+.close-menu{background:transparent;border:0;color:var(--muted);font-size:25px;padding:4px}
+.menu-item{
+width:100%;padding:15px 12px;margin-bottom:9px;border-radius:12px;
+border:1px solid #ffffff0b;background:#111;color:var(--text);
+text-align:left;font-size:14px;
+}
+.menu-item.active{border-color:var(--gold);color:var(--gold)}
+.menu-item span{margin-right:10px}
+.sidebar-footer{
+margin-top:25px;padding-top:18px;border-top:1px solid var(--border);
+color:var(--muted);font-size:11px;text-align:center;
+}
+
+/* PARAMETRLƏR */
+.settings-view{margin-top:15px}
+.settings-heading{color:var(--gold);font-size:20px;margin-bottom:8px}
+.settings-description{color:var(--muted);font-size:12px;line-height:1.5;margin-bottom:20px}
+.setting-card{
+background:linear-gradient(145deg,#191610,#101010);
+border:1px solid #d6ad5525;border-radius:14px;padding:14px;margin-bottom:12px;
+}
+.setting-card h3{font-size:14px;margin-bottom:7px}
+.setting-card p{color:var(--muted);font-size:11px;line-height:1.5;margin-bottom:12px}
+.setting-control{
+width:100%;padding:11px;border:1px solid var(--border);
+border-radius:8px;background:var(--bg);color:var(--text);
+}
+.setting-button{
+width:100%;padding:12px;border:1px solid var(--gold);
+border-radius:25px;background:transparent;color:var(--gold);font-weight:bold;
+}
+.back-button{background:transparent;border:0;color:var(--gold);font-size:13px;margin-bottom:20px}
+
+@media(max-width:500px){
+main{margin-top:12px;padding:10px}
+body.logged-in main{margin-top:10px}
+h1{font-size:30px}
+.messages{height:58vh;min-height:300px;padding:17px 12px}
+.input-area{padding:10px}
+.composer-box input{height:42px}
+.composer-actions{gap:7px}
+.composer-actions button{
+width:40px!important;min-width:40px!important;height:40px!important;
+}
+.chat-top{align-items:flex-start}
+.chat-actions{width:100%}
+.chat-actions button{flex:1}
+.message{max-width:90%}
+.panel{padding:23px 17px}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="header-left">
+    <button class="menu-button" id="menuButton">☰</button>
+    <div class="logo">✦ LYRON <span>AI</span></div>
+  </div>
+  <div class="status" id="systemStatus">● Sistem aktivdir</div>
+</header>
+
+<div class="overlay" id="overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">✦ LYRON AI</div>
+    <button class="close-menu" id="closeMenu">×</button>
+  </div>
+
+  <div id="mainMenu">
+    <button class="menu-item" id="menuNewChat">＋ Yeni söhbət</button>
+    <button class="menu-item" id="menuSettings">⚙ Parametrlər</button>
+    <button class="menu-item" id="menuProfile">♙ Hesab məlumatları</button>
+    <button class="menu-item" id="menuMemory">▤ Söhbət yaddaşı</button>
+    <div class="sidebar-footer">Zəkanın yeni səviyyəsi.<br><br>LYRON AI © 2026</div>
+  </div>
+
+  <div id="settingsView" class="settings-view hidden">
+    <button class="back-button" id="backMenu">← Menyuya qayıt</button>
+    <h2 class="settings-heading">⚙ Parametrlər</h2>
+    <p class="settings-description">LYRON AI tətbiqini öz zövqünə uyğunlaşdır.</p>
+    <div class="setting-card">
+      <h3>🎨 Görünüş</h3>
+      <p>Rəng rejimini seç.</p>
+      <select class="setting-control" id="themeSelect">
+        <option value="dark">Qaranlıq rejim</option>
+        <option value="light">Açıq rejim</option>
+      </select>
+    </div>
+    <div class="setting-card">
+      <h3>🔠 Yazı ölçüsü</h3>
+      <p>Söhbət yazılarının ölçüsünü dəyiş.</p>
+      <select class="setting-control" id="fontSelect">
+        <option value="13px">Kiçik</option>
+        <option value="14px">Normal</option>
+        <option value="16px">Böyük</option>
+        <option value="18px">Çox böyük</option>
+      </select>
+    </div>
+    <div class="setting-card">
+      <h3>🌐 Tətbiq dili</h3>
+      <p>Hazırda Azərbaycan dili aktivdir.</p>
+      <select class="setting-control" disabled>
+        <option>Azərbaycan dili</option>
+      </select>
+    </div>
+    <div class="setting-card">
+      <h3>🧠 Yaddaş</h3>
+      <p>Söhbət tarixçəsini idarə et.</p>
+      <button class="setting-button" id="settingsMemory">Söhbət yaddaşını təmizlə</button>
+    </div>
+    <div class="setting-card">
+      <h3>ℹ Haqqında</h3>
+      <p>LYRON AI — Zəkanın yeni səviyyəsi.<br>Versiya: 1.0</p>
+    </div>
+  </div>
+
+  <div id="profileView" class="settings-view hidden">
+    <button class="back-button" id="backProfile">← Menyuya qayıt</button>
+    <h2 class="settings-heading">♙ Hesab məlumatları</h2>
+    <div class="setting-card">
+      <h3>E-poçt ünvanı</h3>
+      <p id="profileEmail">Yüklənir...</p>
+    </div>
+    <button class="setting-button" id="settingsLogout">Hesabdan çıxış</button>
+  </div>
+
+  <div id="memoryView" class="settings-view hidden">
+    <button class="back-button" id="backMemory">← Menyuya qayıt</button>
+    <h2 class="settings-heading">▤ Söhbət yaddaşı</h2>
+    <div class="setting-card">
+      <h3>Söhbət tarixçəsi</h3>
+      <p>Söhbətlərin buludda saxlanılır. Profil yaddaşı ayrıca qalır.</p>
+      <button class="setting-button" id="memoryClearButton">Söhbətləri sil</button>
+    </div>
+  </div>
+</aside>
+
+<main>
+  <section class="hero">
+    <div class="emblem">✧</div>
+    <h1>LYRON AI</h1>
+    <p class="subtitle">Zəkanın yeni səviyyəsi.</p>
+  </section>
+
+  <section class="panel" id="authPanel">
+    <h2>LYRON AI hesabı</h2>
+    <input id="emailInput" type="email" placeholder="E-poçt ünvanı" autocomplete="email">
+    <input id="passwordInput" type="password" placeholder="Şifrə" autocomplete="current-password">
+    <div class="auth-buttons">
+      <button id="loginButton">Daxil ol</button>
+      <button id="signupButton" class="secondary">Qeydiyyat</button>
+    </div>
+    <p id="authMessage">Davam etmək üçün hesabınıza daxil olun.</p>
+  </section>
+
+  <section id="chatSection" class="hidden">
+    <div class="account-bar">
+      <span id="accountEmail"></span>
+      <button class="small-button" id="logoutButton">Hesabdan çıx</button>
+    </div>
+
+    <div class="chat">
+      <div class="chat-top">
+        <div class="chat-title">LYRON AI · PREMIUM</div>
+        <div class="chat-actions">
+          <button class="new-chat-button" id="newChatButton">＋ Yeni söhbət</button>
+          <button class="clear-button" id="clearButton">Yaddaşı təmizlə</button>
+        </div>
+      </div>
+
+      <div class="messages" id="messages"></div>
+      <div class="voice-status" id="voiceStatus">🎙 Dinləyirəm...</div>
+
+      <div class="input-area">
+        <div class="composer-box">
+
+          <div class="image-preview" id="imagePreview">
+            <img id="previewImage" alt="Seçilmiş şəkil">
+            <div class="image-preview-info">
+              <strong>Şəkil əlavə edildi</strong>
+              <span id="imageFileName"></span>
+            </div>
+            <button class="remove-image" id="removeImageButton" type="button" aria-label="Şəkli sil">×</button>
+          </div>
+
+          <input id="userInput" type="text" placeholder="LYRON-a mesaj yaz..." autocomplete="off">
+
+          <div class="composer-actions">
+
+            <input
+              id="imageInput"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              hidden
+            >
+
+            <button id="imageButton" title="Şəkil əlavə et" type="button" aria-label="Şəkil əlavə et">
+              <svg viewBox="0 0 24 24">
+                <rect x="3" y="3" width="18" height="18" rx="3"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <path d="m21 15-5-5L5 21"/>
+                <path d="M19 3v6M16 6h6"/>
+              </svg>
+            </button>
+
+            <button class="speaker-button" id="speakerButton" title="Səsli cavabı aktiv/deaktiv et" type="button" aria-label="Səsli cavabı aktiv/deaktiv et">
+              <svg viewBox="0 0 24 24">
+                <path d="M11 5 6 9H3v6h3l5 4z"/>
+                <path d="M15 8a5 5 0 0 1 0 8"/>
+                <path d="M18 5a9 9 0 0 1 0 14"/>
+              </svg>
+            </button>
+
+            <button class="voice-button" id="voiceButton" title="Türkcə səsli danışıq" type="button" aria-label="Mikrofon">
+              <svg viewBox="0 0 24 24">
+                <rect x="9" y="2" width="6" height="13" rx="3"/>
+                <path d="M5 11a7 7 0 0 0 14 0"/>
+                <path d="M12 18v4M8 22h8"/>
+              </svg>
+            </button>
+
+            <button class="send-button" id="sendButton" title="Göndər" type="button">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>LYRON AI © 2026 — Zəkanın yeni səviyyəsi.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://gqvozgvmxtwacsnodeib.supabase.co";
+const SUPABASE_KEY = "sb_publishable_XLiztc1zc5VIaaVdn7_xWA_CI_1EFOi";
+const STORAGE_KEY = "lyronHistory";
+const NEW_CHAT_MARKER = "__LYRON_NEW_CHAT__";
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let chatHistory = [];
+let isSending = false;
+let activationInProgress = false;
+let selectedImage = null;
+let selectedImageName = "";
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let isListening = false;
+let voiceModePending = false;
+let voiceTranscript = "";
+let speechEnabled = true;
+
+const $ = id => document.getElementById(id);
+
+const authPanel = $("authPanel");
+const chatSection = $("chatSection");
+const authMessage = $("authMessage");
+const messages = $("messages");
+const input = $("userInput");
+const sendButton = $("sendButton");
+const newChatButton = $("newChatButton");
+const sidebar = $("sidebar");
+const overlay = $("overlay");
+const voiceButton = $("voiceButton");
+const speakerButton = $("speakerButton");
+const voiceStatus = $("voiceStatus");
+const imageInput = $("imageInput");
+const imageButton = $("imageButton");
+const imagePreview = $("imagePreview");
+const previewImage = $("previewImage");
+const imageFileName = $("imageFileName");
+const removeImageButton = $("removeImageButton");
+
+function showAuthMessage(text) {
+  authMessage.textContent = text;
+}
+
+function setVoiceStatus(text, show = true) {
+  voiceStatus.textContent = text;
+  voiceStatus.classList.toggle("show", show);
+}
+
+function stopSpeaking() {
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+}
+
+function speakTurkish(text) {
+  if (!speechEnabled || !("speechSynthesis" in window)) return;
+  stopSpeaking();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "tr-TR";
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  utterance.volume = 1;
+
+  const voice = speechSynthesis.getVoices().find(v =>
+    v.lang && v.lang.toLowerCase().startsWith("tr")
+  );
+
+  if (voice) utterance.voice = voice;
+  speechSynthesis.speak(utterance);
+}
+
+/* ŞƏKİL SEÇİMİ VƏ ÖNİZLƏMƏ */
+
+imageButton.addEventListener("click", () => {
+  if (isSending) return;
+  imageInput.click();
+});
+
+imageInput.addEventListener("change", event => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+
+  if (!allowedTypes.includes(file.type)) {
+    alert("Yalnız PNG, JPG və WEBP şəkilləri qəbul edilir.");
+    imageInput.value = "";
+    return;
   }
 
-  try {
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_ANON_KEY;
+  if (file.size > 2800000) {
+    alert("Şəkil çox böyükdür. Zəhmət olmasa, 2.8 MB-dan kiçik şəkil seç.");
+    imageInput.value = "";
+    return;
+  }
 
-    if (!apiKey || !supabaseUrl || !supabaseKey) {
-      return res.status(500).json({
-        error: "Server parametrləri tapılmadı."
-      });
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    if (typeof reader.result !== "string") {
+      alert("Şəkli oxumaq mümkün olmadı.");
+      return;
     }
 
-    const {
-      message = "",
-      history = [],
-      mode = "text",
-      image = null
-    } = req.body || {};
+    selectedImage = reader.result;
+    selectedImageName = file.name;
 
-    const validImage = image === null ||
-      (
-        typeof image === "string" &&
-        image.length <= 4000000 &&
-        /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(image)
-      );
+    previewImage.src = selectedImage;
+    imageFileName.textContent = file.name;
+    imagePreview.classList.add("show");
+  };
 
-    if (
-      typeof message !== "string" ||
-      message.length > 4000 ||
-      (!message.trim() && !image) ||
-      !Array.isArray(history) ||
-      !["text", "voice"].includes(mode) ||
-      !validImage
-    ) {
-      return res.status(400).json({
-        error: "Mesaj və ya şəkil düzgün deyil. Şəkil PNG, JPG və ya WEBP formatında olmalıdır."
-      });
-    }
+  reader.onerror = () => {
+    alert("Şəkil oxunarkən xəta baş verdi.");
+  };
 
-    const authHeader = req.headers.authorization || "";
-    const accessToken = authHeader.startsWith("Bearer ")
-      ? authHeader.slice(7)
-      : "";
+  reader.readAsDataURL(file);
+});
 
-    if (!accessToken) {
-      return res.status(401).json({
-        error: "Davam etmək üçün hesaba daxil olun."
-      });
-    }
+function removeSelectedImage() {
+  selectedImage = null;
+  selectedImageName = "";
+  previewImage.removeAttribute("src");
+  imageFileName.textContent = "";
+  imageInput.value = "";
+  imagePreview.classList.remove("show");
+}
 
-    const baseUrl = supabaseUrl.replace(/\/$/, "");
+removeImageButton.addEventListener("click", removeSelectedImage);
 
-    const authResponse = await fetch(
-      `${baseUrl}/auth/v1/user`,
-      {
-        headers: {
-          apikey: supabaseKey,
-          Authorization: `Bearer ${accessToken}`
-        }
+function stopListening() {
+  if (recognition && isListening) recognition.stop();
+}
+
+function startListening() {
+  if (!SpeechRecognition) {
+    alert("Brauzer səs tanımanı dəstəkləmir. Chrome ilə yoxlayın.");
+    return;
+  }
+
+  if (!currentUser) {
+    alert("Əvvəlcə hesabınıza daxil olun.");
+    return;
+  }
+
+  if (isSending) {
+    alert("LYRON hazırda cavab hazırlayır.");
+    return;
+  }
+
+  stopSpeaking();
+
+  recognition = new SpeechRecognition();
+  recognition.lang = "tr-TR";
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  voiceTranscript = "";
+  isListening = true;
+  voiceButton.classList.add("listening");
+  setVoiceStatus("🎙 Dinləyirəm... Türkcə danışa bilərsən.");
+
+  recognition.onresult = event => {
+    let finalText = "";
+
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) {
+        finalText += event.results[i][0].transcript;
       }
-    );
-
-    if (!authResponse.ok) {
-      return res.status(401).json({
-        error: "Sessiya etibarsızdır. Yenidən daxil olun."
-      });
     }
 
-    const user = await authResponse.json();
+    if (finalText.trim()) voiceTranscript += " " + finalText.trim();
+  };
 
-    // Uzunmüddətli yaddaş
-    let memories = [];
+  recognition.onerror = event => {
+    if (event.error === "not-allowed") {
+      alert("Mikrofon icazəsini aktiv edin.");
+    } else if (event.error !== "no-speech" && event.error !== "aborted") {
+      alert("Səs tanıma xətası: " + event.error);
+    }
+  };
 
-    const memoryResponse = await fetch(
-      `${baseUrl}/rest/v1/lyron_profile_memory?select=content,created_at&order=created_at.desc&limit=30`,
-      {
-        headers: {
-          apikey: supabaseKey,
-          Authorization: `Bearer ${accessToken}`
-        }
-      }
-    );
+  recognition.onend = () => {
+    isListening = false;
+    voiceButton.classList.remove("listening");
 
-    if (memoryResponse.ok) {
-      memories = await memoryResponse.json();
+    const spokenText = voiceTranscript.trim();
+
+    if (spokenText) {
+      input.value = spokenText;
+      voiceModePending = true;
+      setVoiceStatus("✓ Səs tanındı. LYRON cavab hazırlayır...");
+      sendMessage();
     } else {
-      console.error("Memory read error:", await memoryResponse.text());
+      setVoiceStatus("", false);
     }
+  };
 
-    const memoryText = memories
-      .map(item => item.content)
-      .filter(Boolean)
-      .join("\n");
+  try {
+    recognition.start();
+  } catch (error) {
+    isListening = false;
+    voiceButton.classList.remove("listening");
+    setVoiceStatus("", false);
+    alert("Mikrofonu başlatmaq mümkün olmadı.");
+  }
+}
 
-    const languageInstruction = mode === "voice"
-      ? `
-SƏS REJİMİ — TÜRKİYƏ TÜRKÇƏSİ:
-1. Bütün cavablarını Türkiyə türkcəsində yaz.
-2. İstanbul türkcəsinin düzgün qrammatikasından istifadə et.
-3. Azərbaycan dilinə keçmə.
-4. Danışıq üçün uyğun, aydın və təbii cavablar ver.
-5. İstifadəçi ilə səmimi və hörmətli danış.
-`
-      : `
-YAZIŞMA REJİMİ — AZƏRBAYCAN DİLİ:
-1. Bütün cavablarını Azərbaycan dilində yaz.
-2. Azərbaycan ədəbi dilinin qaydalarına əməl et.
-3. ə, ı, ö, ü, ş, ç, ğ hərflərini düzgün işlət.
-4. Türkiyə türkcəsinin sözlərini Azərbaycan dilinə qarışdırma.
-5. Təbii, səlis və aydın danış.
-`;
+voiceButton.addEventListener("click", () => {
+  if (isListening) stopListening();
+  else startListening();
+});
 
-    const systemPrompt = `
-Sən LYRON AI adlı müasir süni intellekt köməkçisisən.
+speakerButton.addEventListener("click", () => {
+  speechEnabled = !speechEnabled;
+  speakerButton.classList.toggle("off", !speechEnabled);
+  speakerButton.setAttribute("aria-pressed", String(speechEnabled));
+  if (!speechEnabled) stopSpeaking();
+});
 
-${languageInstruction}
+function openMenu() {
+  sidebar.classList.add("open");
+  overlay.classList.add("open");
+}
 
-ÜMUMİ DAVRANIŞ:
-- Adın LYRON AI-dir.
-- Özünü başqa süni intellekt adlandırma.
-- Sualın mahiyyətinə birbaşa cavab ver.
-- Robotik ifadələrdən qaç.
-- İstifadəçi ilə səmimi və hörmətli danış.
-- Mürəkkəb mövzuları anlaşıqlı izah et.
-- İstifadəçinin yaşına uyğun, təhlükəsiz cavablar ver.
-- Məlumat uydurma.
-- Bilmədiyin məsələlərdə bunu açıq bildir.
+function closeMenu() {
+  sidebar.classList.remove("open");
+  overlay.classList.remove("open");
+}
 
-ŞƏKİL ANALİZİ:
-- İstifadəçi şəkil göndərdikdə onu diqqətlə analiz et.
-- Şəkildə görünən obyektləri və detalları təsvir et.
-- Şəkil haqqında verilən suallara konkret cavab ver.
-- Görünməyən detalları uydurma.
-- Əmin olmadığın obyektləri ehtimal kimi təqdim et.
-- Şəkildə mətn varsa, oxuna bildiyi qədər köçür.
-- Şəkli analiz edə bilmədikdə bunu açıq bildir.
+function showMenuView(view) {
+  ["mainMenu","settingsView","profileView","memoryView"].forEach(id => {
+    $(id).classList.add("hidden");
+  });
+  $(view).classList.remove("hidden");
+}
 
-YADDAŞ:
-Aşağıdakı məlumatlar istifadəçi haqqında saxlanılmış faktlardır.
-Onlardan cavabları uyğunlaşdırmaq üçün istifadə et.
-Yaddaşda olmayan məlumatları uydurma.
+function loadSettings() {
+  const theme = localStorage.getItem("lyronTheme") || "dark";
+  const font = localStorage.getItem("lyronFont") || "14px";
 
-İSTİFADƏÇİNİN UZUNMÜDDƏTLİ YADDAŞI:
-${memoryText || "Hələ yadda saxlanılmış məlumat yoxdur."}
-`;
+  document.body.classList.toggle("light", theme === "light");
+  $("themeSelect").value = theme;
+  $("fontSelect").value = font;
+  document.documentElement.style.setProperty("--chat-size", font);
+}
 
-    const safeHistory = history
-      .slice(-10)
-      .filter(item =>
-        item &&
-        ["user", "assistant"].includes(item.role) &&
-        typeof item.content === "string"
-      )
-      .map(item => ({
-        role: item.role,
-        content: item.content.slice(0, 4000)
+$("themeSelect").addEventListener("change", event => {
+  const theme = event.target.value;
+  localStorage.setItem("lyronTheme", theme);
+  document.body.classList.toggle("light", theme === "light");
+});
+
+$("fontSelect").addEventListener("change", event => {
+  const font = event.target.value;
+  localStorage.setItem("lyronFont", font);
+  document.documentElement.style.setProperty("--chat-size", font);
+});
+
+$("menuButton").addEventListener("click", openMenu);
+$("closeMenu").addEventListener("click", closeMenu);
+overlay.addEventListener("click", closeMenu);
+
+$("menuSettings").addEventListener("click", () => showMenuView("settingsView"));
+
+$("menuProfile").addEventListener("click", () => {
+  $("profileEmail").textContent = currentUser?.email || "Hesab məlumatı yoxdur";
+  showMenuView("profileView");
+});
+
+$("menuMemory").addEventListener("click", () => showMenuView("memoryView"));
+$("backMenu").addEventListener("click", () => showMenuView("mainMenu"));
+$("backProfile").addEventListener("click", () => showMenuView("mainMenu"));
+$("backMemory").addEventListener("click", () => showMenuView("mainMenu"));
+
+$("menuNewChat").addEventListener("click", () => {
+  closeMenu();
+  startNewChat();
+});
+
+$("settingsLogout").addEventListener("click", () => {
+  closeMenu();
+  logout();
+});
+
+$("settingsMemory").addEventListener("click", () => {
+  closeMenu();
+  clearHistory();
+});
+
+$("memoryClearButton").addEventListener("click", () => {
+  closeMenu();
+  clearHistory();
+});
+
+function renderMessage(role, content, image = null) {
+  const msg = document.createElement("div");
+  msg.className = role === "user" ? "message user" : "message bot";
+
+  msg.textContent = (role === "user" ? "Siz: " : "LYRON AI: ") + content;
+
+  if (role === "user" && image) {
+    const img = document.createElement("img");
+    img.className = "image-message";
+    img.src = image;
+    img.alt = "Göndərilmiş şəkil";
+    msg.appendChild(img);
+  }
+
+  messages.appendChild(msg);
+}
+
+function renderHistory() {
+  messages.innerHTML = "";
+
+  if (!chatHistory.length) {
+    renderMessage("assistant", "Salam! Mən LYRON AI. Sizə kömək etməyə hazıram. Nə barədə danışaq?");
+  } else {
+    chatHistory.forEach(item => renderMessage(item.role, item.content));
+  }
+
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function saveLocalHistory() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function getLocalHistory() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    if (!Array.isArray(saved)) return [];
+
+    return saved.filter(item =>
+      item && ["user","assistant"].includes(item.role) &&
+      typeof item.content === "string"
+    ).slice(-100);
+  } catch {
+    return [];
+  }
+}
+
+async function getAccessToken() {
+  const { data, error } = await db.auth.getSession();
+  if (error) throw error;
+
+  const token = data.session?.access_token;
+  if (!token) throw new Error("Sessiya tapılmadı. Yenidən daxil olun.");
+
+  return token;
+}
+
+async function saveCloudMessage(item) {
+  if (!currentUser) return;
+
+  const { error } = await db.from("lyron_memories").insert({
+    user_id: currentUser.id,
+    content: JSON.stringify(item)
+  });
+
+  if (error) throw error;
+}
+
+async function loadCloudHistory() {
+  const { data, error } = await db
+    .from("lyron_memories")
+    .select("content, created_at")
+    .order("created_at", { ascending: false })
+    .limit(500);
+
+  if (error) throw error;
+
+  const parsed = (data || []).reverse().map(row => {
+    try { return JSON.parse(row.content); }
+    catch { return null; }
+  });
+
+  let lastMarker = -1;
+
+  parsed.forEach((item, index) => {
+    if (item?.role === "system" && item.content === NEW_CHAT_MARKER) {
+      lastMarker = index;
+    }
+  });
+
+  const cloudHistory = parsed.slice(lastMarker + 1).filter(item =>
+    item && ["user","assistant"].includes(item.role) &&
+    typeof item.content === "string"
+  );
+
+  if (cloudHistory.length === 0 && lastMarker === -1) {
+    const localHistory = getLocalHistory();
+
+    if (localHistory.length && parsed.length === 0) {
+      const records = localHistory.map(item => ({
+        user_id: currentUser.id,
+        content: JSON.stringify(item)
       }));
 
-    // İstifadəçi mesajı və şəkil
-    const userContent = [];
+      const { error: insertError } = await db.from("lyron_memories").insert(records);
+      if (insertError) throw insertError;
 
-    if (message.trim()) {
-      userContent.push({
-        type: "text",
-        text: message.trim()
-      });
-    } else if (image) {
-      userContent.push({
-        type: "text",
-        text: "Zəhmət olmasa, bu şəkli ətraflı analiz et."
-      });
+      chatHistory = localHistory;
+    } else {
+      chatHistory = [];
     }
+  } else {
+    chatHistory = cloudHistory;
+  }
 
-    if (image) {
-      userContent.push({
-        type: "image_url",
-        image_url: {
-          url: image
-        }
-      });
+  saveLocalHistory();
+  renderHistory();
+}
+
+async function activateAccount(user) {
+  if (activationInProgress) return;
+
+  activationInProgress = true;
+  currentUser = user;
+  document.body.classList.add("logged-in");
+
+  authPanel.classList.add("hidden");
+  chatSection.classList.remove("hidden");
+  $("accountEmail").textContent = user.email || "LYRON hesabı";
+
+  try {
+    await loadCloudHistory();
+    $("systemStatus").textContent = "● Bulud yaddaşı aktivdir";
+  } catch (error) {
+    renderHistory();
+    alert("Bulud yaddaşı xətası: " + error.message);
+  } finally {
+    activationInProgress = false;
+  }
+}
+
+async function login() {
+  const email = $("emailInput").value.trim();
+  const password = $("passwordInput").value;
+
+  if (!email || !password) {
+    showAuthMessage("E-poçt və şifrəni daxil edin.");
+    return;
+  }
+
+  showAuthMessage("Hesaba giriş edilir...");
+
+  const { data, error } = await db.auth.signInWithPassword({email,password});
+
+  if (error) {
+    showAuthMessage("Giriş xətası: " + error.message);
+    return;
+  }
+
+  await activateAccount(data.user);
+}
+
+async function signup() {
+  const email = $("emailInput").value.trim();
+  const password = $("passwordInput").value;
+
+  if (!email || !password) {
+    showAuthMessage("E-poçt və şifrəni daxil edin.");
+    return;
+  }
+
+  if (password.length < 6) {
+    showAuthMessage("Şifrə ən azı 6 simvol olmalıdır.");
+    return;
+  }
+
+  showAuthMessage("Hesab yaradılır...");
+
+  const { data, error } = await db.auth.signUp({email,password});
+
+  if (error) {
+    showAuthMessage("Qeydiyyat xətası: " + error.message);
+    return;
+  }
+
+  if (data.session && data.user) {
+    await activateAccount(data.user);
+  } else {
+    showAuthMessage("Qeydiyyat tamamlandı! E-poçtunuza göndərilən təsdiq linkinə daxil olun.");
+  }
+}
+
+async function logout() {
+  stopListening();
+  stopSpeaking();
+  removeSelectedImage();
+
+  const { error } = await db.auth.signOut();
+
+  if (error) {
+    alert("Çıxış xətası: " + error.message);
+    return;
+  }
+
+  currentUser = null;
+  chatHistory = [];
+  document.body.classList.remove("logged-in");
+
+  chatSection.classList.add("hidden");
+  authPanel.classList.remove("hidden");
+  $("systemStatus").textContent = "● Sistem aktivdir";
+  showAuthMessage("Hesabdan çıxış edildi.");
+}
+
+async function startNewChat() {
+  if (!currentUser || isSending) return;
+
+  if (!confirm("Yeni söhbət başlatmaq istəyirsiniz? Əvvəlki söhbətlər saxlanılacaq.")) return;
+
+  newChatButton.disabled = true;
+
+  try {
+    await saveCloudMessage({role:"system",content:NEW_CHAT_MARKER});
+    chatHistory = [];
+    saveLocalHistory();
+    renderHistory();
+    input.value = "";
+    removeSelectedImage();
+    input.focus();
+  } catch (error) {
+    alert("Yeni söhbət yaratmaq mümkün olmadı: " + error.message);
+  } finally {
+    newChatButton.disabled = false;
+  }
+}
+
+async function sendMessage() {
+  if (isSending || !currentUser) return;
+
+  const messageText = input.value.trim();
+  const imageToSend = selectedImage;
+
+  if (!messageText && !imageToSend) return;
+
+  const finalMessage = messageText || "Bu şəkli analiz et.";
+  const mode = voiceModePending ? "voice" : "text";
+  voiceModePending = false;
+
+  isSending = true;
+  sendButton.disabled = true;
+  newChatButton.disabled = true;
+  voiceButton.disabled = true;
+  imageButton.disabled = true;
+
+  const previousHistory = [...chatHistory];
+
+  chatHistory.push({role:"user",content:finalMessage});
+  renderHistory();
+
+  if (imageToSend) {
+    const lastMessage = messages.lastElementChild;
+    if (lastMessage) {
+      const img = document.createElement("img");
+      img.className = "image-message";
+      img.src = imageToSend;
+      img.alt = "Göndərilmiş şəkil";
+      lastMessage.appendChild(img);
     }
+  }
 
-    // Əsas AI cavabı
-    const response = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": "https://lyron-ai-henna.vercel.app",
-          "X-Title": "LYRON AI"
-        },
-        body: JSON.stringify({
-          model: "openrouter/free",
-          messages: [
-            {
-              role: "system",
-              content: systemPrompt
-            },
-            ...safeHistory,
-            {
-              role: "user",
-              content: userContent
-            }
-          ],
-          temperature: 0.4,
-          max_tokens: 1200
-        })
-      }
-    );
+  input.value = "";
+  removeSelectedImage();
+  saveLocalHistory();
+
+  const loading = document.createElement("div");
+  loading.className = "message bot";
+  loading.textContent = "LYRON AI düşünür...";
+  messages.appendChild(loading);
+  messages.scrollTop = messages.scrollHeight;
+
+  try {
+    const accessToken = await getAccessToken();
+    await saveCloudMessage({role:"user",content:finalMessage});
+
+    const response = await fetch("/api/chat", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + accessToken
+      },
+      body:JSON.stringify({
+        message:finalMessage,
+        history:previousHistory.slice(-10),
+        mode:mode,
+        image:imageToSend
+      })
+    });
 
     const data = await response.json();
 
-    if (!response.ok) {
-      console.error("OpenRouter error:", data);
+    if (!response.ok) throw new Error(data.error || "AI bağlantı xətası");
+    if (typeof data.answer !== "string") throw new Error("AI cavabı düzgün deyil.");
 
-      return res.status(502).json({
-        error: "AI xidmətindən cavab almaq mümkün olmadı. Şəkil analizi üçün uyğun model tapılmamış ola bilər."
-      });
-    }
+    loading.textContent = "LYRON AI: " + data.answer;
 
-    const answer = data.choices?.[0]?.message?.content;
+    const assistantMessage = {role:"assistant",content:data.answer};
+    chatHistory.push(assistantMessage);
+    chatHistory = chatHistory.slice(-100);
 
-    if (!answer || typeof answer !== "string") {
-      return res.status(502).json({
-        error: "AI boş cavab qaytardı."
-      });
-    }
+    await saveCloudMessage(assistantMessage);
+    saveLocalHistory();
 
-    // Uzunmüddətli yaddaşın yenilənməsi
-    // Şəkil mesajları ayrıca yaddaş faktı kimi saxlanılmır.
-    if (message.trim()) {
-      try {
-        const userMessages = history
-          .filter(item =>
-            item &&
-            item.role === "user" &&
-            typeof item.content === "string"
-          )
-          .slice(-5)
-          .map(item => item.content);
-
-        userMessages.push(message.trim());
-
-        const extractionResponse = await fetch(
-          "https://openrouter.ai/api/v1/chat/completions",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              model: "openrouter/free",
-              messages: [
-                {
-                  role: "system",
-                  content: `
-Sən LYRON AI yaddaş köməkçisisən.
-
-İstifadəçinin açıq şəkildə bildirdiyi davamlı və gələcəkdə faydalı olacaq faktları seç.
-
-Qaydalar:
-- Yalnız istifadəçinin özünün dediyi məlumatları seç.
-- Təxmin etmə və məlumat uydurma.
-- Layihələri, məqsədləri və ünsiyyət seçimlərini seçə bilərsən.
-- Şifrə, API açarı, ünvan və maliyyə məlumatlarını saxlama.
-- Sağlamlıq, din, siyasi baxış, cinsi həyat və digər həssas məlumatları saxlama.
-- Keçici məlumatları və salamlaşmaları saxlama.
-- Maksimum 3 qısa fakt qaytar.
-- Cavab yalnız JSON massivi olsun.
-- Saxlanılacaq məlumat yoxdursa, [] qaytar.
-
-Nümunə:
-["İstifadəçi LYRON AI layihəsi üzərində işləyir."]
-`
-                },
-                {
-                  role: "user",
-                  content: JSON.stringify(userMessages)
-                }
-              ],
-              temperature: 0.1,
-              max_tokens: 250
-            })
-          }
-        );
-
-        if (extractionResponse.ok) {
-          const extractionData = await extractionResponse.json();
-
-          let extracted =
-            extractionData.choices?.[0]?.message?.content || "[]";
-
-          extracted = extracted
-            .replace(/```json/gi, "")
-            .replace(/```/g, "")
-            .trim();
-
-          const facts = JSON.parse(extracted);
-
-          if (Array.isArray(facts) && memories.length < 30) {
-            const existing = new Set(
-              memories.map(item =>
-                String(item.content).toLowerCase().trim()
-              )
-            );
-
-            const newFacts = facts
-              .filter(fact =>
-                typeof fact === "string" &&
-                fact.trim().length > 0 &&
-                fact.length <= 300 &&
-                !existing.has(fact.toLowerCase().trim())
-              )
-              .slice(0, Math.min(3, 30 - memories.length));
-
-            if (newFacts.length > 0) {
-              const saveResponse = await fetch(
-                `${baseUrl}/rest/v1/lyron_profile_memory`,
-                {
-                  method: "POST",
-                  headers: {
-                    apikey: supabaseKey,
-                    Authorization: `Bearer ${accessToken}`,
-                    "Content-Type": "application/json",
-                    Prefer: "return=minimal"
-                  },
-                  body: JSON.stringify(
-                    newFacts.map(content => ({
-                      user_id: user.id,
-                      content: content.trim()
-                    }))
-                  )
-                }
-              );
-
-              if (!saveResponse.ok) {
-                console.error(
-                  "Memory save error:",
-                  await saveResponse.text()
-                );
-              }
-            }
-          }
-        }
-      } catch (memoryError) {
-        console.error("Memory extraction error:", memoryError);
-      }
-    }
-
-    return res.status(200).json({
-      answer,
-      mode,
-      imageAnalyzed: Boolean(image)
-    });
+    if (mode === "voice" && speechEnabled) speakTurkish(data.answer);
 
   } catch (error) {
-    console.error("LYRON error:", error);
+    loading.textContent = "LYRON AI: " + error.message;
+    chatHistory = previousHistory;
+    saveLocalHistory();
+  } finally {
+    isSending = false;
+    sendButton.disabled = false;
+    newChatButton.disabled = false;
+    voiceButton.disabled = false;
+    imageButton.disabled = false;
+    messages.scrollTop = messages.scrollHeight;
 
-    return res.status(500).json({
-      error: "Daxili server xətası baş verdi."
-    });
+    if (mode === "voice") setVoiceStatus("", false);
+    input.focus();
   }
 }
+
+async function clearHistory() {
+  if (!currentUser || isSending) return;
+
+  if (!confirm("Bu hesabın bütün bulud söhbətlərini silmək istəyirsiniz?")) return;
+
+  const { error } = await db.from("lyron_memories")
+    .delete()
+    .gt("created_at","1970-01-01T00:00:00Z");
+
+  if (error) {
+    alert("Yaddaşı silmək mümkün olmadı: " + error.message);
+    return;
+  }
+
+  chatHistory = [];
+  localStorage.removeItem(STORAGE_KEY);
+  renderHistory();
+  alert("Bulud söhbətləri təmizləndi. Profil yaddaşı saxlanıldı.");
+}
+
+$("loginButton").addEventListener("click", login);
+$("signupButton").addEventListener("click", signup);
+$("logoutButton").addEventListener("click", logout);
+$("clearButton").addEventListener("click", clearHistory);
+newChatButton.addEventListener("click", startNewChat);
+sendButton.addEventListener("click", sendMessage);
+
+input.addEventListener("keydown", event => {
+  if (event.key === "Enter") sendMessage();
+});
+
+async function startApp() {
+  loadSettings();
+
+  const { data, error } = await db.auth.getSession();
+
+  if (error) {
+    showAuthMessage("Sessiya xətası: " + error.message);
+    return;
+  }
+
+  if (data.session) await activateAccount(data.session.user);
+}
+
+db.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_IN" && session) {
+    setTimeout(() => activateAccount(session.user), 0);
+  }
+});
+
+startApp();
+</script>
+</body>
+</html>
