@@ -390,6 +390,43 @@ h1{font-size:30px}
     height:42px;
   }
 }
+  /* LYRON — DÜYMƏLƏRİN SON DİZAYNI */
+.composer-actions #speakerButton,
+.composer-actions #voiceButton,
+.composer-actions #sendButton {
+  width: 38px !important;
+  min-width: 38px !important;
+  height: 38px !important;
+  border-radius: 11px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: none !important;
+  position: static !important;
+}
+
+.composer-actions #speakerButton {
+  background: #17130d !important;
+  border: 1px solid #72562b !important;
+  color: #e8bd70 !important;
+}
+
+.composer-actions #voiceButton {
+  background: linear-gradient(145deg,#332514,#17110a) !important;
+  border: 1px solid #b98b3c !important;
+  color: #e8bd70 !important;
+  font-size: 19px !important;
+}
+
+.composer-actions #sendButton {
+  background: linear-gradient(145deg,#f4d38c,#bd8b36) !important;
+  border: none !important;
+  color: #090909 !important;
+}
+
+.composer-actions #voiceButton.listening {
+  animation: lyronMicPulse 1.3s infinite !important;
+}
 </style>
 </head>
 
