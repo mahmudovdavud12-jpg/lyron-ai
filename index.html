@@ -427,6 +427,55 @@ h1{font-size:30px}
 .composer-actions #voiceButton.listening {
   animation: lyronMicPulse 1.3s infinite !important;
 }
+  /* LYRON AI — PREMIUM ICON BUTTONS */
+.composer-actions button {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 13px !important;
+  padding: 0 !important;
+}
+
+.composer-actions button svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.composer-actions #voiceButton {
+  background: #21190e !important;
+  color: #e8bd70 !important;
+  border: 1px solid #b98b3c !important;
+}
+
+.composer-actions #speakerButton {
+  background: #17130d !important;
+  color: #e8bd70 !important;
+  border: 1px solid #72562b !important;
+}
+
+.composer-actions #sendButton {
+  background: linear-gradient(145deg,#f4d38c,#bd8b36) !important;
+  color: #090909 !important;
+  border: none !important;
+}
+
+.composer-actions #voiceButton.listening {
+  animation: lyronMicPulse 1.3s infinite;
+}
+
+@keyframes lyronMicPulse {
+  50% {
+    box-shadow: 0 0 0 7px #b98b3c30;
+  }
+}
 </style>
 </head>
 
