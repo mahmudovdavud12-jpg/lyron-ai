@@ -13,28 +13,56 @@ export default async function handler(req, res) {
 
     if (!apiKey || !supabaseUrl || !supabaseKey) {
       return res.status(500).json({
-        error: "Server parametrləri tam qurulmayıb."
+        error: "Server parametrləri tapılmadı."
       });
     }
 
-    // İSTİFADƏÇİ SESSİYASINI YOXLAMAQ
-    const authorization = req.headers.authorization || "";
-    const accessToken = authorization.startsWith("Bearer ")
-      ? authorization.slice(7)
+    const {
+      message = "",
+      history = [],
+      mode = "text",
+      image = null
+    } = req.body || {};
+
+    const validImage = image === null ||
+      (
+        typeof image === "string" &&
+        image.length <= 4000000 &&
+        /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(image)
+      );
+
+    if (
+      typeof message !== "string" ||
+      message.length > 4000 ||
+      (!message.trim() && !image) ||
+      !Array.isArray(history) ||
+      !["text", "voice"].includes(mode) ||
+      !validImage
+    ) {
+      return res.status(400).json({
+        error: "Mesaj və ya şəkil düzgün deyil. Şəkil PNG, JPG və ya WEBP formatında olmalıdır."
+      });
+    }
+
+    const authHeader = req.headers.authorization || "";
+    const accessToken = authHeader.startsWith("Bearer ")
+      ? authHeader.slice(7)
       : "";
 
     if (!accessToken) {
       return res.status(401).json({
-        error: "Daxil olmaq tələb olunur."
+        error: "Davam etmək üçün hesaba daxil olun."
       });
     }
 
+    const baseUrl = supabaseUrl.replace(/\/$/, "");
+
     const authResponse = await fetch(
-      `${supabaseUrl}/auth/v1/user`,
+      `${baseUrl}/auth/v1/user`,
       {
         headers: {
-          "apikey": supabaseKey,
-          "Authorization": `Bearer ${accessToken}`
+          apikey: supabaseKey,
+          Authorization: `Bearer ${accessToken}`
         }
       }
     );
@@ -47,180 +75,299 @@ export default async function handler(req, res) {
 
     const user = await authResponse.json();
 
-    if (!user || !user.id) {
-      return res.status(401).json({
-        error: "İstifadəçi təsdiqlənmədi."
-      });
-    }
+    // Uzunmüddətli yaddaş
+    let memories = [];
 
-    // GƏLƏN MƏLUMATLAR
-    const {
-      message,
-      history = [],
-      mode = "text",
-      image = null
-    } = req.body || {};
-
-    if (typeof message !== "string" || (!message.trim() && !image)) {
-      return res.status(400).json({
-        error: "Mesaj və ya şəkil göndərilməlidir."
-      });
-    }
-
-    if (message.length > 12000) {
-      return res.status(400).json({
-        error: "Mesaj çox uzundur."
-      });
-    }
-
-    // ŞƏKİLİN YOXLAMASI
-    if (image !== null) {
-      if (
-        typeof image !== "string" ||
-        !/^data:image\/(png|jpeg|webp);base64,/.test(image)
-      ) {
-        return res.status(400).json({
-          error: "Şəkil formatı dəstəklənmir."
-        });
+    const memoryResponse = await fetch(
+      `${baseUrl}/rest/v1/lyron_profile_memory?select=content,created_at&order=created_at.desc&limit=30`,
+      {
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${accessToken}`
+        }
       }
+    );
 
-      if (image.length > 4000000) {
-        return res.status(413).json({
-          error: "Şəkil çox böyükdür."
-        });
-      }
+    if (memoryResponse.ok) {
+      memories = await memoryResponse.json();
+    } else {
+      console.error("Memory read error:", await memoryResponse.text());
     }
 
-    // SÖHBƏT TARİXÇƏSİ
-    const safeHistory = Array.isArray(history)
-      ? history
-          .filter(item =>
-            item &&
-            ["user", "assistant"].includes(item.role) &&
-            typeof item.content === "string"
-          )
-          .slice(-10)
-          .map(item => ({
-            role: item.role,
-            content: item.content.slice(0, 12000)
-          }))
-      : [];
+    const memoryText = memories
+      .map(item => item.content)
+      .filter(Boolean)
+      .join("\n");
 
-    // LYRON AI SİSTEM TƏLİMATI
-    const systemPrompt = `
-Sən LYRON AI adlı ağıllı virtual köməkçisən.
-
-ƏSAS DAVRANIŞ QAYDALARI:
-
-- İstifadəçi ilə səmimi, nəzakətli və təbii danış.
-- Özünü LYRON AI kimi təqdim et.
-- Cavablarını dəqiq, məntiqli və anlaşıqlı hazırla.
-- İstifadəçinin sualını diqqətlə anla.
-- Lazımsız uzun cavablardan qaç.
-- Bilmədiyin məlumatı uydurma.
-- Əmin olmadığın məsələlərdə bunu açıq bildir.
-- Azərbaycan dilinin düzgün yazılış qaydalarına əməl et.
-- İstifadəçi şəkil göndərdikdə şəkli diqqətlə analiz et.
-- Şəkildə görünməyən detalları uydurma.
-- İstifadəçi şəkil haqqında sual verirsə, konkret cavablandır.
-- İstifadəçinin şəxsi məlumatlarını qorumağa diqqət et.
-
-DİL REJİMİ:
-
-${mode === "voice"
-  ? "Səsli danışıq rejimindəsən. Cavablarını təbii TÜRK dilində ver."
-  : "Adi rejimdəsən. Cavablarını Azərbaycan dilində ver."}
-
-Sənin adın LYRON AI-dir.
+    const languageInstruction = mode === "voice"
+      ? `
+SƏS REJİMİ — TÜRKİYƏ TÜRKÇƏSİ:
+1. Bütün cavablarını Türkiyə türkcəsində yaz.
+2. İstanbul türkcəsinin düzgün qrammatikasından istifadə et.
+3. Azərbaycan dilinə keçmə.
+4. Danışıq üçün uyğun, aydın və təbii cavablar ver.
+5. İstifadəçi ilə səmimi və hörmətli danış.
+`
+      : `
+YAZIŞMA REJİMİ — AZƏRBAYCAN DİLİ:
+1. Bütün cavablarını Azərbaycan dilində yaz.
+2. Azərbaycan ədəbi dilinin qaydalarına əməl et.
+3. ə, ı, ö, ü, ş, ç, ğ hərflərini düzgün işlət.
+4. Türkiyə türkcəsinin sözlərini Azərbaycan dilinə qarışdırma.
+5. Təbii, səlis və aydın danış.
 `;
 
-    // OPENROUTER MESAJLARI
-    const messages = [
-      {
-        role: "system",
-        content: systemPrompt
-      },
-      ...safeHistory
-    ];
+    const systemPrompt = `
+Sən LYRON AI adlı müasir süni intellekt köməkçisisən.
 
-    // ŞƏKİLLİ VƏ YA ADİ MESAJ
-    if (image) {
-      messages.push({
-        role: "user",
-        content: [
-          {
-            type: "text",
-            text: message || "Bu şəkli diqqətlə analiz et və təsvir et."
-          },
-          {
-            type: "image_url",
-            image_url: {
-              url: image
-            }
-          }
-        ]
+${languageInstruction}
+
+ÜMUMİ DAVRANIŞ:
+- Adın LYRON AI-dir.
+- Özünü başqa süni intellekt adlandırma.
+- Sualın mahiyyətinə birbaşa cavab ver.
+- Robotik ifadələrdən qaç.
+- İstifadəçi ilə səmimi və hörmətli danış.
+- Mürəkkəb mövzuları anlaşıqlı izah et.
+- İstifadəçinin yaşına uyğun, təhlükəsiz cavablar ver.
+- Məlumat uydurma.
+- Bilmədiyin məsələlərdə bunu açıq bildir.
+
+ŞƏKİL ANALİZİ:
+- İstifadəçi şəkil göndərdikdə onu diqqətlə analiz et.
+- Şəkildə görünən obyektləri və detalları təsvir et.
+- Şəkil haqqında verilən suallara konkret cavab ver.
+- Görünməyən detalları uydurma.
+- Əmin olmadığın obyektləri ehtimal kimi təqdim et.
+- Şəkildə mətn varsa, oxuna bildiyi qədər köçür.
+- Şəkli analiz edə bilmədikdə bunu açıq bildir.
+
+YADDAŞ:
+Aşağıdakı məlumatlar istifadəçi haqqında saxlanılmış faktlardır.
+Onlardan cavabları uyğunlaşdırmaq üçün istifadə et.
+Yaddaşda olmayan məlumatları uydurma.
+
+İSTİFADƏÇİNİN UZUNMÜDDƏTLİ YADDAŞI:
+${memoryText || "Hələ yadda saxlanılmış məlumat yoxdur."}
+`;
+
+    const safeHistory = history
+      .slice(-10)
+      .filter(item =>
+        item &&
+        ["user", "assistant"].includes(item.role) &&
+        typeof item.content === "string"
+      )
+      .map(item => ({
+        role: item.role,
+        content: item.content.slice(0, 4000)
+      }));
+
+    // İstifadəçi mesajı və şəkil
+    const userContent = [];
+
+    if (message.trim()) {
+      userContent.push({
+        type: "text",
+        text: message.trim()
       });
-    } else {
-      messages.push({
-        role: "user",
-        content: message
+    } else if (image) {
+      userContent.push({
+        type: "text",
+        text: "Zəhmət olmasa, bu şəkli ətraflı analiz et."
       });
     }
 
-    // OPENROUTER SORĞUSU
-    const aiResponse = await fetch(
+    if (image) {
+      userContent.push({
+        type: "image_url",
+        image_url: {
+          url: image
+        }
+      });
+    }
+
+    // Əsas AI cavabı
+    const response = await fetch(
       "https://openrouter.ai/api/v1/chat/completions",
       {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${apiKey}`,
+          Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
           "HTTP-Referer": "https://lyron-ai-henna.vercel.app",
           "X-Title": "LYRON AI"
         },
         body: JSON.stringify({
           model: "openrouter/free",
-          messages,
-          temperature: 0.7,
-          max_tokens: 1500
+          messages: [
+            {
+              role: "system",
+              content: systemPrompt
+            },
+            ...safeHistory,
+            {
+              role: "user",
+              content: userContent
+            }
+          ],
+          temperature: 0.4,
+          max_tokens: 1200
         })
       }
     );
 
-    const responseText = await aiResponse.text();
+    const data = await response.json();
 
-    let aiData;
+    if (!response.ok) {
+      console.error("OpenRouter error:", data);
 
-    try {
-      aiData = JSON.parse(responseText);
-    } catch {
-      throw new Error("AI serverindən düzgün cavab alınmadı.");
+      return res.status(502).json({
+        error: "AI xidmətindən cavab almaq mümkün olmadı. Şəkil analizi üçün uyğun model tapılmamış ola bilər."
+      });
     }
 
-    if (!aiResponse.ok) {
-      console.error("OpenRouter error:", aiData);
+    const answer = data.choices?.[0]?.message?.content;
 
-      throw new Error(
-        aiData.error?.message ||
-        "AI xidmətində müvəqqəti problem yarandı."
-      );
+    if (!answer || typeof answer !== "string") {
+      return res.status(502).json({
+        error: "AI boş cavab qaytardı."
+      });
     }
 
-    const answer = aiData.choices?.[0]?.message?.content;
+    // Uzunmüddətli yaddaşın yenilənməsi
+    // Şəkil mesajları ayrıca yaddaş faktı kimi saxlanılmır.
+    if (message.trim()) {
+      try {
+        const userMessages = history
+          .filter(item =>
+            item &&
+            item.role === "user" &&
+            typeof item.content === "string"
+          )
+          .slice(-5)
+          .map(item => item.content);
 
-    if (typeof answer !== "string" || !answer.trim()) {
-      throw new Error("AI boş cavab qaytardı.");
+        userMessages.push(message.trim());
+
+        const extractionResponse = await fetch(
+          "https://openrouter.ai/api/v1/chat/completions",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              model: "openrouter/free",
+              messages: [
+                {
+                  role: "system",
+                  content: `
+Sən LYRON AI yaddaş köməkçisisən.
+
+İstifadəçinin açıq şəkildə bildirdiyi davamlı və gələcəkdə faydalı olacaq faktları seç.
+
+Qaydalar:
+- Yalnız istifadəçinin özünün dediyi məlumatları seç.
+- Təxmin etmə və məlumat uydurma.
+- Layihələri, məqsədləri və ünsiyyət seçimlərini seçə bilərsən.
+- Şifrə, API açarı, ünvan və maliyyə məlumatlarını saxlama.
+- Sağlamlıq, din, siyasi baxış, cinsi həyat və digər həssas məlumatları saxlama.
+- Keçici məlumatları və salamlaşmaları saxlama.
+- Maksimum 3 qısa fakt qaytar.
+- Cavab yalnız JSON massivi olsun.
+- Saxlanılacaq məlumat yoxdursa, [] qaytar.
+
+Nümunə:
+["İstifadəçi LYRON AI layihəsi üzərində işləyir."]
+`
+                },
+                {
+                  role: "user",
+                  content: JSON.stringify(userMessages)
+                }
+              ],
+              temperature: 0.1,
+              max_tokens: 250
+            })
+          }
+        );
+
+        if (extractionResponse.ok) {
+          const extractionData = await extractionResponse.json();
+
+          let extracted =
+            extractionData.choices?.[0]?.message?.content || "[]";
+
+          extracted = extracted
+            .replace(/```json/gi, "")
+            .replace(/```/g, "")
+            .trim();
+
+          const facts = JSON.parse(extracted);
+
+          if (Array.isArray(facts) && memories.length < 30) {
+            const existing = new Set(
+              memories.map(item =>
+                String(item.content).toLowerCase().trim()
+              )
+            );
+
+            const newFacts = facts
+              .filter(fact =>
+                typeof fact === "string" &&
+                fact.trim().length > 0 &&
+                fact.length <= 300 &&
+                !existing.has(fact.toLowerCase().trim())
+              )
+              .slice(0, Math.min(3, 30 - memories.length));
+
+            if (newFacts.length > 0) {
+              const saveResponse = await fetch(
+                `${baseUrl}/rest/v1/lyron_profile_memory`,
+                {
+                  method: "POST",
+                  headers: {
+                    apikey: supabaseKey,
+                    Authorization: `Bearer ${accessToken}`,
+                    "Content-Type": "application/json",
+                    Prefer: "return=minimal"
+                  },
+                  body: JSON.stringify(
+                    newFacts.map(content => ({
+                      user_id: user.id,
+                      content: content.trim()
+                    }))
+                  )
+                }
+              );
+
+              if (!saveResponse.ok) {
+                console.error(
+                  "Memory save error:",
+                  await saveResponse.text()
+                );
+              }
+            }
+          }
+        }
+      } catch (memoryError) {
+        console.error("Memory extraction error:", memoryError);
+      }
     }
 
     return res.status(200).json({
-      answer: answer.trim()
+      answer,
+      mode,
+      imageAnalyzed: Boolean(image)
     });
 
   } catch (error) {
-    console.error("LYRON API error:", error);
+    console.error("LYRON error:", error);
 
     return res.status(500).json({
-      error: error.message || "Naməlum server xətası."
+      error: "Daxili server xətası baş verdi."
     });
   }
 }
