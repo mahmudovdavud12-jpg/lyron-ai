@@ -6,6 +6,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#090909">
 <title>LYRON AI — Zəkanın yeni səviyyəsi</title>
+  .composer-actions svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -610,8 +619,21 @@ h1{font-size:30px}
             autocomplete="off"
           >
           <div class="composer-actions">
-            <button class="speaker-button" id="speakerButton" title="Səsli cavabı aktiv/deaktiv et">🔊</button>
-            <button class="voice-button" id="voiceButton" title="Türkcə səsli danışıq">🎙</button>
+             <button class="speaker-button" id="speakerButton" title="Səsli cavabı aktiv/deaktiv et">
+  <svg viewBox="0 0 24 24">
+    <path d="M11 5 6 9H3v6h3l5 4z"/>
+    <path d="M15 8a5 5 0 0 1 0 8"/>
+    <path d="M18 5a9 9 0 0 1 0 14"/>
+  </svg>
+</button>
+
+<button class="voice-button" id="voiceButton" title="Türkcə səsli danışıq">
+  <svg viewBox="0 0 24 24">
+    <rect x="9" y="2" width="6" height="13" rx="3"/>
+    <path d="M5 11a7 7 0 0 0 14 0"/>
+    <path d="M12 18v4M8 22h8"/>
+  </svg>
+</button>
             <button class="send-button" id="sendButton" title="Göndər">➤</button>
           </div>
         </div>
