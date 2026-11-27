@@ -10,12 +10,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const groqKey = process.env.GROQ_API_KEY;
+    const openRouterKey = process.env.OPENROUTER_API_KEY;
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_ANON_KEY;
-    const model = process.env.OPENROUTER_MODEL || "openrouter/free";
 
-    if (!apiKey || !supabaseUrl || !supabaseKey) {
+    const groqModel =
+      process.env.GROQ_MODEL || "openai/gpt-oss-20b";
+
+    const openRouterModel =
+      process.env.OPENROUTER_MODEL || "openrouter/free";
+
+    if (!openRouterKey || !supabaseUrl || !supabaseKey) {
       return res.status(500).json({
         error: "Server parametrləri tapılmadı. Vercel dəyişənlərini yoxlayın."
       });
@@ -87,7 +93,8 @@ export default async function handler(req, res) {
       });
     }
 
-    // Əvvəlki profil yaddaşını oxuyuruq.
+    // SUPABASE YADDAŞI
+
     let memories = [];
 
     const memoryUrl = new URL(
@@ -123,7 +130,7 @@ SƏS REJİMİ — TÜRK DİLİ:
 1. Bütün cavablarını Türkiyə türkcəsində ver.
 2. İstanbul türkcəsinin təbii danışıq dilindən istifadə et.
 3. Azərbaycan dilinə keçmə.
-4. Cümlələri canlı, səlis və gündəlik danışığa uyğun qur.
+4. Cümlələri canlı və səlis qur.
 5. Robotik ifadələrdən qaç.
 6. Cavabları danışıqda rahat eşidiləcək şəkildə yaz.
 `
@@ -144,36 +151,29 @@ ${languageInstruction}
 MƏTN FORMATI:
 - Cavablarını sadə mətn formasında yaz.
 - Markdown formatından istifadə etmə.
-- Lazımsız dekorativ simvollar və emojilər əlavə etmə.
+- Lazımsız dekorativ simvollar əlavə etmə.
 - Siyahı lazım olduqda sadə nömrələmədən istifadə et.
-- Mətnin oxunaqlılığını qoru.
 
 ÜMUMİ DAVRANIŞ:
 - Adın LYRON AI-dir.
 - Özünü başqa süni intellekt adlandırma.
 - Sualın mahiyyətinə birbaşa cavab ver.
-- Robotik ifadələrdən qaç.
 - Hörmətli və təbii danış.
 - Hər cavabı lazımsız yerə uzatma.
 - Mürəkkəb mövzuları anlaşıqlı izah et.
-- İstifadəçinin yaşına uyğun təhlükəsiz cavablar ver.
 - Məlumat uydurma.
 - Bilmədiyin məsələlərdə bunu açıq bildir.
-- Şəxsi məlumatları lazımsız yerə istəmə.
+- İstifadəçinin yaşına uyğun təhlükəsiz cavablar ver.
 
 ŞƏKİL ANALİZİ:
 - Göndərilən şəkli diqqətlə analiz et.
-- Görünən obyektləri və detalları təsvir et.
-- Şəkil haqqında suallara konkret cavab ver.
+- Görünən detalları təsvir et.
 - Görünməyən detalları uydurma.
 - Əmin olmadığın obyektləri ehtimal kimi təqdim et.
-- Şəkildəki oxuna bilən mətni izah et.
-- Şəkli analiz edə bilmədikdə bunu açıq bildir.
 
 YADDAŞ:
 Aşağıdakı məlumatlar əvvəl saxlanılmış faktlardır.
 Onlardan yalnız cavabları uyğunlaşdırmaq üçün istifadə et.
-Yaddaşda olmayan məlumatları uydurma.
 
 İSTİFADƏÇİNİN UZUNMÜDDƏTLİ YADDAŞI:
 ${memoryText || "Hələ yaddaşda saxlanılmış məlumat yoxdur."}
@@ -208,79 +208,162 @@ ${memoryText || "Hələ yaddaşda saxlanılmış məlumat yoxdur."}
       });
     }
 
-    // Əsas AI sorğusu.
-    const aiResponse = await fetch(
+    const messages = [
+      {
+        role: "system",
+        content: systemPrompt
+      },
+      ...safeHistory,
+      {
+        role: "user",
+        content: image ? userContent : message.trim()
+      }
+    ];
+
+    // AI cavabını oxumaq üçün ümumi funksiya.
+
+    function extractAnswer(data) {
+      const content = data.choices?.[0]?.message?.content;
+
+      if (typeof content === "string") {
+        return content.trim();
+      }
+
+      if (Array.isArray(content)) {
+        return content
+          .filter(item => item.type === "text")
+          .map(item => item.text || "")
+          .join("\n")
+          .trim();
+      }
+
+      return "";
+    }
+
+    // 1. ƏSAS MODEL: GROQ
+    // Şəkillər üçün OpenRouter istifadə edilir.
+
+    if (groqKey && !image) {
+      try {
+        const groqResponse = await fetch(
+          "https://api.groq.com/openai/v1/chat/completions",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${groqKey}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              model: groqModel,
+              messages,
+              temperature: 0.65,
+              max_completion_tokens: 1600
+            })
+          }
+        );
+
+        const groqRaw = await groqResponse.text();
+
+        let groqData;
+
+        try {
+          groqData = JSON.parse(groqRaw);
+        } catch {
+          throw new Error("Groq cavabı oxunmadı.");
+        }
+
+        if (!groqResponse.ok) {
+          console.error("Groq error:", groqData);
+          throw new Error("Groq müvəqqəti əlçatmazdır.");
+        }
+
+        const groqAnswer = extractAnswer(groqData);
+
+        if (!groqAnswer) {
+          throw new Error("Groq boş cavab qaytardı.");
+        }
+
+        return res.status(200).json({
+          answer: groqAnswer,
+          mode,
+          imageAnalyzed: false,
+          provider: "groq"
+        });
+
+      } catch (groqError) {
+        console.error(
+          "Groq failed, switching to OpenRouter:",
+          groqError.message
+        );
+      }
+    }
+
+    // 2. EHTİYAT MODEL: OPENROUTER
+    // Groq işləmədikdə və ya şəkil göndərildikdə.
+
+    const openRouterResponse = await fetch(
       "https://openrouter.ai/api/v1/chat/completions",
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${openRouterKey}`,
           "Content-Type": "application/json",
           "HTTP-Referer": "https://lyron-ai-henna.vercel.app",
           "X-Title": "LYRON AI"
         },
         body: JSON.stringify({
-          model,
-          messages: [
-            {
-              role: "system",
-              content: systemPrompt
-            },
-            ...safeHistory,
-            {
-              role: "user",
-              content: userContent
-            }
-          ],
+          model: openRouterModel,
+          messages,
           temperature: 0.65,
           max_tokens: 1600
         })
       }
     );
 
-    const aiRaw = await aiResponse.text();
+    const openRouterRaw = await openRouterResponse.text();
 
-    let aiData;
+    let openRouterData;
 
     try {
-      aiData = JSON.parse(aiRaw);
+      openRouterData = JSON.parse(openRouterRaw);
     } catch {
-      console.error("Invalid OpenRouter response:", aiRaw.slice(0, 1000));
+      console.error("Invalid OpenRouter response.");
 
       return res.status(502).json({
-        error: "AI xidmətindən düzgün cavab alınmadı. Bir az sonra yenidən yoxlayın."
+        error: "Ehtiyat AI xidmətindən düzgün cavab alınmadı."
       });
     }
 
-    if (!aiResponse.ok) {
-      console.error("OpenRouter error:", aiData);
+    if (!openRouterResponse.ok) {
+      console.error("OpenRouter error:", openRouterData);
 
-      const apiMessage = aiData.error?.message || "";
+      const apiMessage =
+        openRouterData.error?.message || "";
 
       if (image && /image|vision|modalit|endpoint/i.test(apiMessage)) {
         return res.status(502).json({
-          error: "Hazırda şəkil analizini dəstəkləyən pulsuz AI modeli tapılmadı. Bir az sonra yenidən yoxlayın."
+          error: "Hazırda şəkil analizini dəstəkləyən pulsuz AI modeli tapılmadı."
         });
       }
 
       return res.status(502).json({
-        error: "AI xidmətində müvəqqəti problem yarandı. Bir az sonra yenidən cəhd edin."
+        error: "AI xidmətlərində müvəqqəti problem yarandı. Bir az sonra yenidən yoxlayın."
       });
     }
 
-    const answer = aiData.choices?.[0]?.message?.content;
+    const answer = extractAnswer(openRouterData);
 
-    if (typeof answer !== "string" || !answer.trim()) {
+    if (!answer) {
       return res.status(502).json({
         error: "AI boş cavab qaytardı. Yenidən cəhd edin."
       });
     }
 
-    // Cavabı ikinci AI sorğusu gözləmədən qaytarırıq.
     return res.status(200).json({
-      answer: answer.trim(),
+      answer,
       mode,
-      imageAnalyzed: Boolean(image)
+      imageAnalyzed: Boolean(image),
+      provider: "openrouter"
     });
 
   } catch (error) {
