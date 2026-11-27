@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="az">
 <head>
@@ -288,6 +289,18 @@ h1{font-size:30px}
         <option value="18px">Çox böyük</option>
       </select>
     </div>
+
+    <div class="setting-card">
+      <h3>🗣 LYRON-un səsi</h3>
+      <p>Cihazında mövcud olan Türkiyə türkcəsi səslərindən birini seç.</p>
+      <select class="setting-control" id="voiceSelect">
+        <option value="">Səslər yüklənir...</option>
+      </select>
+      <button class="setting-button" id="testVoiceButton" type="button" style="margin-top:10px">
+        Səsi sına
+      </button>
+    </div>
+
     <div class="setting-card">
       <h3>🌐 Tətbiq dili</h3><p>Hazırda Azərbaycan dili aktivdir.</p>
       <select class="setting-control" disabled><option>Azərbaycan dili</option></select>
@@ -409,6 +422,7 @@ let currentUser=null,chatHistory=[],isSending=false,activationInProgress=false;
 let selectedImage=null,selectedImageData=null;
 let recognition=null,isListening=false,voiceModePending=false;
 let voiceTranscript="",speechEnabled=true;
+let availableTurkishVoices=[];
 
 const authPanel=$("authPanel"),chatSection=$("chatSection");
 const messages=$("messages"),input=$("userInput");
@@ -443,6 +457,43 @@ $("fontSelect").addEventListener("change",e=>{
  localStorage.setItem("lyronFont",e.target.value);
  document.documentElement.style.setProperty("--chat-size",e.target.value);
 });
+
+// Cihazda mövcud türk səslərini yüklə.
+function loadTurkishVoices(){
+ if(!("speechSynthesis" in window))return;
+
+ const select=$("voiceSelect");
+ if(!select)return;
+
+ const voices=window.speechSynthesis.getVoices();
+
+ availableTurkishVoices=voices.filter(v=>
+  v.lang&&v.lang.toLowerCase().startsWith("tr")
+ );
+
+ const saved=localStorage.getItem("lyronVoice")||"";
+ select.innerHTML="";
+
+ if(!availableTurkishVoices.length){
+  select.innerHTML='<option value="">Türk səsi tapılmadı</option>';
+  return;
+ }
+
+ availableTurkishVoices.forEach(voice=>{
+  const option=document.createElement("option");
+  option.value=voice.voiceURI;
+  option.textContent=voice.name+" ("+voice.lang+")";
+  select.appendChild(option);
+ });
+
+ const exists=availableTurkishVoices.some(v=>v.voiceURI===saved);
+
+ select.value=exists?saved:availableTurkishVoices[0].voiceURI;
+
+ if(!exists){
+  localStorage.setItem("lyronVoice",select.value);
+ }
+}
 
 function stopSpeaking(){
  if("speechSynthesis" in window)window.speechSynthesis.cancel();
@@ -492,14 +543,42 @@ function speakTurkish(text){
  utterance.rate=1;
  utterance.pitch=1;
 
- const voices=window.speechSynthesis.getVoices();
- const voice=voices.find(v=>
-  v.lang&&v.lang.toLowerCase().startsWith("tr")
- );
+ const selected=$("voiceSelect")?.value||localStorage.getItem("lyronVoice");
+
+ const voice=availableTurkishVoices.find(v=>
+  v.voiceURI===selected
+ )||availableTurkishVoices[0];
 
  if(voice)utterance.voice=voice;
 
  window.speechSynthesis.speak(utterance);
+}
+
+$("voiceSelect").addEventListener("change",()=>{
+ localStorage.setItem("lyronVoice",$("voiceSelect").value);
+});
+
+$("testVoiceButton").addEventListener("click",()=>{
+ if(!("speechSynthesis" in window)){
+  alert("Bu brauzer səsli oxunuşu dəstəkləmir.");
+  return;
+ }
+
+ if(!availableTurkishVoices.length){
+  alert("Cihazında türk dili səsi tapılmadı.");
+  return;
+ }
+
+ speechEnabled=true;
+ speakerButton.classList.remove("off");
+ speakerButton.setAttribute("aria-pressed","true");
+
+ speakTurkish("Merhaba! Ben LYRON AI. Seçtiğin sesle konuşuyorum.");
+});
+
+if("speechSynthesis" in window){
+ loadTurkishVoices();
+ window.speechSynthesis.addEventListener("voiceschanged",loadTurkishVoices);
 }
 
 function stopListening(){
@@ -1014,7 +1093,11 @@ async function sendMessage(){
  try{
   const accessToken=await getAccessToken();
 
-  await saveCloudMessage(userItem);
+  // İstifadəçi mesajını AI sorğusu ilə paralel yadda saxla.
+  const userSavePromise=saveCloudMessage(userItem).catch(error=>{
+   console.error("İstifadəçi mesajının yadda saxlanması xətası:",error);
+   return null;
+  });
 
   const response=await fetch("/api/chat",{
    method:"POST",
@@ -1057,9 +1140,17 @@ async function sendMessage(){
 
   chatHistory.push(assistant);
   chatHistory=chatHistory.slice(-100);
-
-  await saveCloudMessage(assistant);
   saveLocalHistory();
+
+  // Əvvəl istifadəçi mesajının, sonra AI cavabının buluda yazılmasını gözlə.
+  await userSavePromise;
+
+  try{
+   await saveCloudMessage(assistant);
+  }catch(error){
+   console.error("AI cavabının buluda yazılması xətası:",error);
+   setStatus("● Bulud yaddaşında xəta");
+  }
 
   if(mode==="voice"&&speechEnabled){
    speakTurkish(data.answer);
