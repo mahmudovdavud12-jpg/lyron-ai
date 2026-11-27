@@ -1,4 +1,3 @@
-
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
 
@@ -66,7 +65,6 @@ export default async function handler(req, res) {
 
     const baseUrl = supabaseUrl.replace(/\/$/, "");
 
-    // İstifadəçi sessiyasını təsdiqlə
     const authResponse = await fetch(`${baseUrl}/auth/v1/user`, {
       headers: {
         apikey: supabaseKey,
@@ -88,7 +86,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // İstifadəçinin yalnız öz uzunmüddətli yaddaşını oxu
     let memories = [];
 
     const memoryUrl = new URL(
@@ -120,12 +117,13 @@ export default async function handler(req, res) {
 
     const languageInstruction = mode === "voice"
       ? `
-SƏS REJİMİ — AZƏRBAYCAN DİLİ:
-1. Bütün cavablarını Azərbaycan dilində ver.
-2. Azərbaycan ədəbi dilindən istifadə et.
-3. Cümlələri danışıq üçün təbii və aydın qur.
-4. Türkiyə türkcəsinə keçmə.
-5. Cavabları səsli oxunuşa uyğun yaz.
+SƏS REJİMİ — TÜRK DİLİ:
+1. Bütün cavablarını Türkiyə türkcəsində ver.
+2. İstanbul türkcəsinin təbii və düzgün danışıq dilindən istifadə et.
+3. Azərbaycan dilinə keçmə.
+4. Cümlələri canlı, səlis və gündəlik danışığa uyğun qur.
+5. Robotik və süni səslənən ifadələrdən qaç.
+6. Cavabları danışıqda rahat eşidiləcək şəkildə yaz.
 `
       : `
 YAZIŞMA REJİMİ — AZƏRBAYCAN DİLİ:
@@ -141,12 +139,23 @@ Sən LYRON AI adlı müasir süni intellekt köməkçisisən.
 
 ${languageInstruction}
 
+MƏTN FORMATI:
+- Cavablarını adi, sadə mətn formasında yaz.
+- Markdown formatından istifadə etmə.
+- Ulduz, ikiqat ulduz, alt xətt və başlıq işarələri işlətmə.
+- Sözləri qalın və ya kursiv göstərməyə çalışma.
+- Dekorativ simvollar və lazımsız emojilər əlavə etmə.
+- Siyahı lazım olduqda sadə nömrələmə və ya adi cümlələrdən istifadə et.
+- Mətnin oxunaqlılığını və təbii görünüşünü qoru.
+
 ÜMUMİ DAVRANIŞ:
 - Adın LYRON AI-dir.
 - Özünü başqa süni intellekt adlandırma.
 - Sualın mahiyyətinə birbaşa cavab ver.
 - Robotik ifadələrdən qaç.
 - İstifadəçi ilə səmimi və hörmətli danış.
+- Mümkün olduqda canlı, təbii və söhbətə uyğun cavablar ver.
+- Hər cavabı lazımsız yerə uzatma.
 - Mürəkkəb mövzuları anlaşıqlı izah et.
 - İstifadəçinin yaşına uyğun, təhlükəsiz cavablar ver.
 - Məlumat uydurma.
@@ -168,10 +177,9 @@ Onlardan yalnız cavabları uyğunlaşdırmaq üçün istifadə et.
 Yaddaşda olmayan məlumatları uydurma.
 
 İSTİFADƏÇİNİN UZUNMÜDDƏTLİ YADDAŞI:
-${memoryText || "Hələ yadda saxlanılmış məlumat yoxdur."}
+${memoryText || "Hələ yaddaşda saxlanılmış məlumat yoxdur."}
 `;
 
-    // Tarixçəni yoxla və təhlükəsiz formada hazırla
     const safeHistory = history
       .slice(-10)
       .filter(item =>
@@ -184,7 +192,6 @@ ${memoryText || "Hələ yadda saxlanılmış məlumat yoxdur."}
         content: item.content.slice(0, 4000)
       }));
 
-    // İstifadəçinin mesajını hazırla
     const userContent = [];
 
     userContent.push({
@@ -202,7 +209,6 @@ ${memoryText || "Hələ yadda saxlanılmış məlumat yoxdur."}
       });
     }
 
-    // OpenRouter AI sorğusu
     const aiResponse = await fetch(
       "https://openrouter.ai/api/v1/chat/completions",
       {
@@ -226,7 +232,7 @@ ${memoryText || "Hələ yadda saxlanılmış məlumat yoxdur."}
               content: userContent
             }
           ],
-          temperature: 0.5,
+          temperature: 0.65,
           max_tokens: 1600
         })
       }
@@ -270,9 +276,6 @@ ${memoryText || "Hələ yadda saxlanılmış məlumat yoxdur."}
       });
     }
 
-    // Uzunmüddətli yaddaş üçün təhlükəsiz fakt seçimi
-    // Yalnız mətn mesajlarında işləyir.
-    // Həssas məlumatların saxlanmasına icazə verilmir.
     if (message.trim() && !image && memories.length < 30) {
       try {
         const recentUserMessages = safeHistory
