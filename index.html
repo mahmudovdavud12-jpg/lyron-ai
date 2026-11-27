@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="az">
 <head>
@@ -376,7 +375,7 @@ h1{font-size:30px}
                   <path d="M18 5a9 9 0 0 1 0 14"/>
                 </svg>
               </button>
-              <button id="voiceButton" title="Səsli danışıq" type="button" aria-label="Mikrofon">
+              <button id="voiceButton" title="Türk dilində səsli danışıq" type="button" aria-label="Mikrofon">
                 <svg viewBox="0 0 24 24">
                   <rect x="9" y="2" width="6" height="13" rx="3"/>
                   <path d="M5 11a7 7 0 0 0 14 0"/>
@@ -428,7 +427,6 @@ function applyTheme(theme){
  const light=theme==="light";
  document.body.classList.toggle("light",light);
  $("themeSelect").value=theme;
- // Android brauzerinin yuxarı paneli həmişə qara saxlanılır.
  document.querySelector('meta[name="theme-color"]').content="#090909";
 }
 function loadSettings(){
@@ -449,82 +447,182 @@ $("fontSelect").addEventListener("change",e=>{
 function stopSpeaking(){
  if("speechSynthesis" in window)window.speechSynthesis.cancel();
 }
-function speakAzerbaijani(text){
+
+// Səsli oxunuşdan əvvəl emoji və Markdown işarələrini təmizlə.
+function cleanTextForSpeech(text){
+ let clean=String(text||"");
+
+ clean=clean
+  .replace(/```[\w-]*\n?/g,"")
+  .replace(/```/g,"")
+  .replace(/`([^`]+)`/g,"$1")
+  .replace(/\[([^\]]+)\]\([^)]+\)/g,"$1")
+  .replace(/https?:\/\/\S+/gi,"")
+  .replace(/^\s{0,3}#{1,6}\s*/gm,"")
+  .replace(/^\s*[-+•]\s+/gm,"")
+  .replace(/^\s*\d+[.)]\s+/gm,"")
+  .replace(/^\s*>\s?/gm,"")
+  .replace(/(\*\*|__)(.*?)\1/g,"$2")
+  .replace(/([*_~])/g,"");
+
+ try{
+  clean=clean.replace(/\p{Extended_Pictographic}/gu," ");
+  clean=clean.replace(/[^\p{L}\p{N}\s.,!?;:…'"()\-]/gu," ");
+ }catch(error){
+  clean=clean.replace(/[^\w\s.,!?;:'"()-]/g," ");
+ }
+
+ return clean
+  .replace(/\s+([.,!?;:])/g,"$1")
+  .replace(/([.,!?;:]){2,}/g,"$1")
+  .replace(/\s{2,}/g," ")
+  .trim();
+}
+
+function speakTurkish(text){
  if(!speechEnabled||!("speechSynthesis" in window))return;
+
+ const cleanText=cleanTextForSpeech(text);
+ if(!cleanText)return;
+
  stopSpeaking();
- const utterance=new SpeechSynthesisUtterance(text);
- utterance.lang="az-AZ";utterance.rate=1;utterance.pitch=1;
- const voice=window.speechSynthesis.getVoices().find(v=>
-  v.lang&&v.lang.toLowerCase().startsWith("az")
+
+ const utterance=new SpeechSynthesisUtterance(cleanText);
+ utterance.lang="tr-TR";
+ utterance.rate=1;
+ utterance.pitch=1;
+
+ const voices=window.speechSynthesis.getVoices();
+ const voice=voices.find(v=>
+  v.lang&&v.lang.toLowerCase().startsWith("tr")
  );
+
  if(voice)utterance.voice=voice;
+
  window.speechSynthesis.speak(utterance);
 }
+
 function stopListening(){
  if(recognition&&isListening)recognition.stop();
 }
+
 function startListening(){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!SR){alert("Brauzer səs tanımanı dəstəkləmir. Chrome ilə yoxlayın.");return}
- if(!currentUser){alert("Əvvəlcə hesabınıza daxil olun.");return}
- if(isSending){alert("LYRON hazırda cavab hazırlayır.");return}
+
+ if(!SR){
+  alert("Brauzer səs tanımanı dəstəkləmir. Chrome ilə yoxlayın.");
+  return;
+ }
+
+ if(!currentUser){
+  alert("Əvvəlcə hesabınıza daxil olun.");
+  return;
+ }
+
+ if(isSending){
+  alert("LYRON hazırda cavab hazırlayır.");
+  return;
+ }
+
  stopSpeaking();
+
  recognition=new SR();
- recognition.lang="az-AZ";
+ recognition.lang="tr-TR";
  recognition.continuous=false;
  recognition.interimResults=true;
  recognition.maxAlternatives=1;
- voiceTranscript="";isListening=true;
+
+ voiceTranscript="";
+ isListening=true;
+
  voiceButton.classList.add("listening");
- setVoiceStatus("🎙 Dinləyirəm... Azərbaycan dilində danışa bilərsən.");
+ setVoiceStatus("🎙 Dinləyirəm... Türk dilində danışa bilərsən.");
+
  recognition.onresult=event=>{
   let finalText="";
+
   for(let i=event.resultIndex;i<event.results.length;i++){
-   if(event.results[i].isFinal)finalText+=event.results[i][0].transcript;
+   if(event.results[i].isFinal){
+    finalText+=event.results[i][0].transcript;
+   }
   }
-  if(finalText.trim())voiceTranscript+=" "+finalText.trim();
+
+  if(finalText.trim()){
+   voiceTranscript+=" "+finalText.trim();
+  }
  };
+
  recognition.onerror=event=>{
-  if(event.error==="not-allowed")alert("Mikrofon icazəsini aktiv edin.");
-  else if(event.error!=="no-speech"&&event.error!=="aborted")
+  if(event.error==="not-allowed"){
+   alert("Mikrofon icazəsini aktiv edin.");
+  }else if(event.error!=="no-speech"&&event.error!=="aborted"){
    setVoiceStatus("Səs tanıma xətası: "+event.error);
+  }
  };
+
  recognition.onend=()=>{
-  isListening=false;voiceButton.classList.remove("listening");
+  isListening=false;
+  voiceButton.classList.remove("listening");
+
   const spoken=voiceTranscript.trim();
+
   if(spoken){
-   input.value=spoken;voiceModePending=true;
+   input.value=spoken;
+   voiceModePending=true;
    setVoiceStatus("✓ Səs tanındı. LYRON cavab hazırlayır...");
    sendMessage();
-  }else setVoiceStatus("",false);
+  }else{
+   setVoiceStatus("",false);
+  }
  };
- try{recognition.start()}catch(e){
-  isListening=false;voiceButton.classList.remove("listening");
-  setVoiceStatus("",false);alert("Mikrofonu başlatmaq mümkün olmadı.");
+
+ try{
+  recognition.start();
+ }catch(e){
+  isListening=false;
+  voiceButton.classList.remove("listening");
+  setVoiceStatus("",false);
+  alert("Mikrofonu başlatmaq mümkün olmadı.");
  }
 }
-voiceButton.addEventListener("click",()=>isListening?stopListening():startListening());
+
+voiceButton.addEventListener("click",()=>{
+ isListening?stopListening():startListening();
+});
+
 speakerButton.addEventListener("click",()=>{
  speechEnabled=!speechEnabled;
  speakerButton.classList.toggle("off",!speechEnabled);
  speakerButton.setAttribute("aria-pressed",String(speechEnabled));
+
  if(!speechEnabled)stopSpeaking();
 });
 
-function openMenu(){sidebar.classList.add("open");overlay.classList.add("open")}
-function closeMenu(){sidebar.classList.remove("open");overlay.classList.remove("open")}
+function openMenu(){
+ sidebar.classList.add("open");
+ overlay.classList.add("open");
+}
+function closeMenu(){
+ sidebar.classList.remove("open");
+ overlay.classList.remove("open");
+}
 function showMenuView(view){
- ["mainMenu","settingsView","profileView","memoryView"].forEach(id=>$(id).classList.add("hidden"));
+ ["mainMenu","settingsView","profileView","memoryView"].forEach(id=>
+  $(id).classList.add("hidden")
+ );
  $(view).classList.remove("hidden");
 }
+
 $("menuButton").addEventListener("click",openMenu);
 $("closeMenu").addEventListener("click",closeMenu);
 overlay.addEventListener("click",closeMenu);
 $("menuSettings").addEventListener("click",()=>showMenuView("settingsView"));
+
 $("menuProfile").addEventListener("click",()=>{
  $("profileEmail").textContent=currentUser?.email||"Hesab məlumatı yoxdur";
  showMenuView("profileView");
 });
+
 $("menuMemory").addEventListener("click",()=>showMenuView("memoryView"));
 $("backMenu").addEventListener("click",()=>showMenuView("mainMenu"));
 $("backProfile").addEventListener("click",()=>showMenuView("mainMenu"));
@@ -540,251 +638,525 @@ function renderMessage(role,content){
  msg.textContent=(role==="user"?"Siz: ":"LYRON AI: ")+content;
  messages.appendChild(msg);
 }
+
 function renderHistory(){
  messages.innerHTML="";
+
  if(!chatHistory.length){
   renderMessage("assistant","Salam! Mən LYRON AI. Sizə kömək etməyə hazıram. Nə barədə danışaq?");
- }else chatHistory.forEach(item=>renderMessage(item.role,item.content));
+ }else{
+  chatHistory.forEach(item=>renderMessage(item.role,item.content));
+ }
+
  messages.scrollTop=messages.scrollHeight;
 }
+
 function saveLocalHistory(){
- try{localStorage.setItem(STORAGE_KEY,JSON.stringify(chatHistory))}catch(e){console.error(e)}
+ try{
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(chatHistory));
+ }catch(e){
+  console.error(e);
+ }
 }
+
 function getLocalHistory(){
  try{
   const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+
   if(!Array.isArray(saved))return [];
-  return saved.filter(x=>x&&["user","assistant"].includes(x.role)&&typeof x.content==="string").slice(-100);
- }catch{return []}
+
+  return saved.filter(x=>
+   x&&["user","assistant"].includes(x.role)&&typeof x.content==="string"
+  ).slice(-100);
+ }catch{
+  return [];
+ }
 }
+
 async function getAccessToken(){
  const {data,error}=await db.auth.getSession();
+
  if(error)throw error;
- if(!data.session?.access_token)throw new Error("Sessiya tapılmadı. Yenidən daxil olun.");
+
+ if(!data.session?.access_token){
+  throw new Error("Sessiya tapılmadı. Yenidən daxil olun.");
+ }
+
  return data.session.access_token;
 }
+
 async function saveCloudMessage(item){
  if(!currentUser)return;
+
  const {error}=await db.from("lyron_memories").insert({
-  user_id:currentUser.id,content:JSON.stringify(item)
+  user_id:currentUser.id,
+  content:JSON.stringify(item)
  });
+
  if(error)throw error;
 }
+
 async function loadCloudHistory(){
  const {data,error}=await db.from("lyron_memories")
-  .select("content,created_at").eq("user_id",currentUser.id)
-  .order("created_at",{ascending:false}).limit(500);
+  .select("content,created_at")
+  .eq("user_id",currentUser.id)
+  .order("created_at",{ascending:false})
+  .limit(500);
+
  if(error)throw error;
+
  const parsed=(data||[]).reverse().map(row=>{
   try{return JSON.parse(row.content)}catch{return null}
  });
+
  let marker=-1;
+
  parsed.forEach((item,index)=>{
-  if(item?.role==="system"&&item.content===NEW_CHAT_MARKER)marker=index;
+  if(item?.role==="system"&&item.content===NEW_CHAT_MARKER){
+   marker=index;
+  }
  });
+
  const cloud=parsed.slice(marker+1).filter(item=>
   item&&["user","assistant"].includes(item.role)&&typeof item.content==="string"
  );
+
  if(!cloud.length&&marker===-1){
   const local=getLocalHistory();
+
   if(local.length&&parsed.length===0){
-   const records=local.map(item=>({user_id:currentUser.id,content:JSON.stringify(item)}));
+   const records=local.map(item=>({
+    user_id:currentUser.id,
+    content:JSON.stringify(item)
+   }));
+
    const {error:insertError}=await db.from("lyron_memories").insert(records);
+
    if(insertError)throw insertError;
+
    chatHistory=local;
-  }else chatHistory=[];
- }else chatHistory=cloud;
- saveLocalHistory();renderHistory();
+  }else{
+   chatHistory=[];
+  }
+ }else{
+  chatHistory=cloud;
+ }
+
+ saveLocalHistory();
+ renderHistory();
 }
+
 async function activateAccount(user){
  if(activationInProgress)return;
- activationInProgress=true;currentUser=user;
+
+ activationInProgress=true;
+ currentUser=user;
+
  document.body.classList.add("logged-in");
- authPanel.classList.add("hidden");chatSection.classList.remove("hidden");
+ authPanel.classList.add("hidden");
+ chatSection.classList.remove("hidden");
+
  $("accountEmail").textContent=user.email||"LYRON hesabı";
+
  try{
-  await loadCloudHistory();setStatus("● Bulud yaddaşı aktivdir");
+  await loadCloudHistory();
+  setStatus("● Bulud yaddaşı aktivdir");
  }catch(error){
-  renderHistory();setStatus("● Yaddaş bağlantısında xəta");
+  renderHistory();
+  setStatus("● Yaddaş bağlantısında xəta");
   alert("Bulud yaddaşı xətası: "+error.message);
- }finally{activationInProgress=false}
+ }finally{
+  activationInProgress=false;
+ }
 }
+
 async function login(){
- const email=$("emailInput").value.trim(),password=$("passwordInput").value;
- if(!email||!password){showAuthMessage("E-poçt və şifrəni daxil edin.");return}
+ const email=$("emailInput").value.trim();
+ const password=$("passwordInput").value;
+
+ if(!email||!password){
+  showAuthMessage("E-poçt və şifrəni daxil edin.");
+  return;
+ }
+
  showAuthMessage("Hesaba giriş edilir...");
+
  const {data,error}=await db.auth.signInWithPassword({email,password});
- if(error){showAuthMessage("Giriş xətası: "+error.message);return}
+
+ if(error){
+  showAuthMessage("Giriş xətası: "+error.message);
+  return;
+ }
+
  await activateAccount(data.user);
 }
+
 async function signup(){
- const email=$("emailInput").value.trim(),password=$("passwordInput").value;
- if(!email||!password){showAuthMessage("E-poçt və şifrəni daxil edin.");return}
- if(password.length<6){showAuthMessage("Şifrə ən azı 6 simvol olmalıdır.");return}
+ const email=$("emailInput").value.trim();
+ const password=$("passwordInput").value;
+
+ if(!email||!password){
+  showAuthMessage("E-poçt və şifrəni daxil edin.");
+  return;
+ }
+
+ if(password.length<6){
+  showAuthMessage("Şifrə ən azı 6 simvol olmalıdır.");
+  return;
+ }
+
  showAuthMessage("Hesab yaradılır...");
+
  const {data,error}=await db.auth.signUp({email,password});
- if(error){showAuthMessage("Qeydiyyat xətası: "+error.message);return}
- if(data.session&&data.user)await activateAccount(data.user);
- else showAuthMessage("Qeydiyyat tamamlandı! E-poçtunuza göndərilən təsdiq linkinə daxil olun.");
+
+ if(error){
+  showAuthMessage("Qeydiyyat xətası: "+error.message);
+  return;
+ }
+
+ if(data.session&&data.user){
+  await activateAccount(data.user);
+ }else{
+  showAuthMessage("Qeydiyyat tamamlandı! E-poçtunuza göndərilən təsdiq linkinə daxil olun.");
+ }
 }
+
 async function logout(){
- stopListening();stopSpeaking();
+ stopListening();
+ stopSpeaking();
+
  const {error}=await db.auth.signOut();
- if(error){alert("Çıxış xətası: "+error.message);return}
- currentUser=null;chatHistory=[];document.body.classList.remove("logged-in");
- chatSection.classList.add("hidden");authPanel.classList.remove("hidden");
- setStatus("● Sistem aktivdir");showAuthMessage("Hesabdan çıxış edildi.");
+
+ if(error){
+  alert("Çıxış xətası: "+error.message);
+  return;
+ }
+
+ currentUser=null;
+ chatHistory=[];
+
+ document.body.classList.remove("logged-in");
+ chatSection.classList.add("hidden");
+ authPanel.classList.remove("hidden");
+
+ setStatus("● Sistem aktivdir");
+ showAuthMessage("Hesabdan çıxış edildi.");
 }
+
 async function startNewChat(){
  if(!currentUser||isSending)return;
- if(!confirm("Yeni söhbət başlatmaq istəyirsiniz? Əvvəlki söhbətlər saxlanılacaq."))return;
+
+ if(!confirm("Yeni söhbət başlatmaq istəyirsiniz? Əvvəlki söhbətlər saxlanılacaq.")){
+  return;
+ }
+
  newChatButton.disabled=true;
+
  try{
-  await saveCloudMessage({role:"system",content:NEW_CHAT_MARKER});
-  chatHistory=[];saveLocalHistory();renderHistory();input.value="";input.focus();
- }catch(error){alert("Yeni söhbət yaratmaq mümkün olmadı: "+error.message)}
- finally{newChatButton.disabled=false}
+  await saveCloudMessage({
+   role:"system",
+   content:NEW_CHAT_MARKER
+  });
+
+  chatHistory=[];
+  saveLocalHistory();
+  renderHistory();
+  input.value="";
+  input.focus();
+
+ }catch(error){
+  alert("Yeni söhbət yaratmaq mümkün olmadı: "+error.message);
+ }finally{
+  newChatButton.disabled=false;
+ }
 }
+
 function clearSelectedImage(){
- selectedImage=null;selectedImageData=null;
+ selectedImage=null;
+ selectedImageData=null;
+
  $("imageInput").value="";
  $("imagePreview").classList.remove("show");
  $("previewImage").src="";
  $("imageFileName").textContent="";
 }
+
 function readImage(file){
  return new Promise((resolve,reject)=>{
   if(!file||!file.type.match(/^image\/(png|jpeg|webp)$/)){
-   reject(new Error("Yalnız PNG, JPG və WEBP şəkilləri qəbul edilir."));return;
+   reject(new Error("Yalnız PNG, JPG və WEBP şəkilləri qəbul edilir."));
+   return;
   }
+
   if(file.size>8*1024*1024){
-   reject(new Error("Şəkil 8 MB-dan kiçik olmalıdır."));return;
+   reject(new Error("Şəkil 8 MB-dan kiçik olmalıdır."));
+   return;
   }
+
   const reader=new FileReader();
+
   reader.onerror=()=>reject(new Error("Şəkli oxumaq mümkün olmadı."));
+
   reader.onload=()=>{
    const img=new Image();
+
    img.onerror=()=>reject(new Error("Şəkil faylı açıla bilmədi."));
+
    img.onload=()=>{
-    const max=1500,scale=Math.min(1,max/Math.max(img.width,img.height));
+    const max=1500;
+    const scale=Math.min(1,max/Math.max(img.width,img.height));
+
     const canvas=document.createElement("canvas");
     canvas.width=Math.max(1,Math.round(img.width*scale));
     canvas.height=Math.max(1,Math.round(img.height*scale));
+
     const ctx=canvas.getContext("2d");
     ctx.drawImage(img,0,0,canvas.width,canvas.height);
+
     const data=canvas.toDataURL("image/jpeg",0.82);
-    if(data.length>3900000){reject(new Error("Şəkil ölçüsü çox böyükdür. Daha kiçik şəkil seçin."));return}
+
+    if(data.length>3900000){
+     reject(new Error("Şəkil ölçüsü çox böyükdür. Daha kiçik şəkil seçin."));
+     return;
+    }
+
     resolve({data,name:file.name});
    };
+
    img.src=reader.result;
   };
+
   reader.readAsDataURL(file);
  });
 }
+
 $("imageButton").addEventListener("click",()=>{
  if(isSending)return;
  $("imageInput").click();
 });
+
 $("imageInput").addEventListener("change",async e=>{
- const file=e.target.files?.[0];if(!file)return;
+ const file=e.target.files?.[0];
+
+ if(!file)return;
+
  try{
   const result=await readImage(file);
-  selectedImage=file;selectedImageData=result.data;
+
+  selectedImage=file;
+  selectedImageData=result.data;
+
   $("previewImage").src=result.data;
   $("imageFileName").textContent=result.name;
   $("imagePreview").classList.add("show");
- }catch(error){alert(error.message);clearSelectedImage()}
+
+ }catch(error){
+  alert(error.message);
+  clearSelectedImage();
+ }
 });
+
 $("removeImageButton").addEventListener("click",clearSelectedImage);
 
 async function sendMessage(){
  if(isSending||!currentUser)return;
+
  const messageText=input.value.trim();
+
  if(!messageText&&!selectedImageData)return;
+
  const mode=voiceModePending?"voice":"text";
  voiceModePending=false;
+
  isSending=true;
- sendButton.disabled=true;newChatButton.disabled=true;
- voiceButton.disabled=true;$("imageButton").disabled=true;
+
+ sendButton.disabled=true;
+ newChatButton.disabled=true;
+ voiceButton.disabled=true;
+ $("imageButton").disabled=true;
+
  const previousHistory=[...chatHistory];
  const imageToSend=selectedImageData;
- const imageName=selectedImage?.name||"";
- const userItem={role:"user",content:messageText||(imageToSend?"Şəkil göndərildi.":"")};
- chatHistory.push(userItem);chatHistory=chatHistory.slice(-100);
- renderHistory();input.value="";saveLocalHistory();
+
+ const userItem={
+  role:"user",
+  content:messageText||(imageToSend?"Şəkil göndərildi.":"")
+ };
+
+ chatHistory.push(userItem);
+ chatHistory=chatHistory.slice(-100);
+
+ renderHistory();
+ input.value="";
+ saveLocalHistory();
+
  if(imageToSend){
   const img=document.createElement("img");
-  img.className="message-image";img.src=imageToSend;img.alt="Göndərilən şəkil";
-  const last=messages.lastElementChild;if(last)last.appendChild(img);
+
+  img.className="message-image";
+  img.src=imageToSend;
+  img.alt="Göndərilən şəkil";
+
+  const last=messages.lastElementChild;
+
+  if(last)last.appendChild(img);
  }
+
  clearSelectedImage();
+
  const loading=document.createElement("div");
- loading.className="message bot";loading.textContent="LYRON AI düşünür...";
- messages.appendChild(loading);messages.scrollTop=messages.scrollHeight;
+ loading.className="message bot";
+ loading.textContent="LYRON AI düşünür...";
+
+ messages.appendChild(loading);
+ messages.scrollTop=messages.scrollHeight;
+
  try{
   const accessToken=await getAccessToken();
+
   await saveCloudMessage(userItem);
+
   const response=await fetch("/api/chat",{
    method:"POST",
-   headers:{"Content-Type":"application/json","Authorization":"Bearer "+accessToken},
+   headers:{
+    "Content-Type":"application/json",
+    "Authorization":"Bearer "+accessToken
+   },
    body:JSON.stringify({
-    message:messageText,history:previousHistory.slice(-10),
-    mode,image:imageToSend
+    message:messageText,
+    history:previousHistory.slice(-10),
+    mode,
+    image:imageToSend
    })
   });
+
   const raw=await response.text();
+
   let data;
-  try{data=JSON.parse(raw)}catch{throw new Error("Server düzgün cavab qaytarmadı. Vercel serverini yoxlamaq lazımdır.")}
-  if(!response.ok)throw new Error(data.error||"AI bağlantı xətası ("+response.status+")");
-  if(typeof data.answer!=="string"||!data.answer.trim())throw new Error("AI boş cavab qaytardı.");
+
+  try{
+   data=JSON.parse(raw);
+  }catch{
+   throw new Error("Server düzgün cavab qaytarmadı. Vercel serverini yoxlamaq lazımdır.");
+  }
+
+  if(!response.ok){
+   throw new Error(data.error||"AI bağlantı xətası ("+response.status+")");
+  }
+
+  if(typeof data.answer!=="string"||!data.answer.trim()){
+   throw new Error("AI boş cavab qaytardı.");
+  }
+
   loading.textContent="LYRON AI: "+data.answer;
-  const assistant={role:"assistant",content:data.answer};
-  chatHistory.push(assistant);chatHistory=chatHistory.slice(-100);
-  await saveCloudMessage(assistant);saveLocalHistory();
-  if(mode==="voice"&&speechEnabled)speakAzerbaijani(data.answer);
+
+  const assistant={
+   role:"assistant",
+   content:data.answer
+  };
+
+  chatHistory.push(assistant);
+  chatHistory=chatHistory.slice(-100);
+
+  await saveCloudMessage(assistant);
+  saveLocalHistory();
+
+  if(mode==="voice"&&speechEnabled){
+   speakTurkish(data.answer);
+  }
+
  }catch(error){
   loading.textContent="LYRON AI: "+error.message;
   chatHistory=previousHistory.concat(userItem);
   saveLocalHistory();
+
  }finally{
-  isSending=false;sendButton.disabled=false;newChatButton.disabled=false;
-  voiceButton.disabled=false;$("imageButton").disabled=false;
+  isSending=false;
+
+  sendButton.disabled=false;
+  newChatButton.disabled=false;
+  voiceButton.disabled=false;
+  $("imageButton").disabled=false;
+
   messages.scrollTop=messages.scrollHeight;
-  if(mode==="voice")setVoiceStatus("",false);
+
+  if(mode==="voice"){
+   setVoiceStatus("",false);
+  }
+
   input.focus();
  }
 }
+
 async function clearHistory(){
  if(!currentUser||isSending)return;
- if(!confirm("Bu hesabın bütün bulud söhbətlərini silmək istəyirsiniz?"))return;
+
+ if(!confirm("Bu hesabın bütün bulud söhbətlərini silmək istəyirsiniz?")){
+  return;
+ }
+
  $("clearButton").disabled=true;
+
  try{
-  const {error}=await db.from("lyron_memories").delete()
+  const {error}=await db.from("lyron_memories")
+   .delete()
    .eq("user_id",currentUser.id);
+
   if(error)throw error;
-  chatHistory=[];localStorage.removeItem(STORAGE_KEY);renderHistory();
+
+  chatHistory=[];
+  localStorage.removeItem(STORAGE_KEY);
+  renderHistory();
+
   alert("Bulud söhbətləri təmizləndi. Profil yaddaşı saxlanıldı.");
- }catch(error){alert("Yaddaşı silmək mümkün olmadı: "+error.message)}
- finally{$("clearButton").disabled=false}
+
+ }catch(error){
+  alert("Yaddaşı silmək mümkün olmadı: "+error.message);
+ }finally{
+  $("clearButton").disabled=false;
+ }
 }
+
 $("loginButton").addEventListener("click",login);
 $("signupButton").addEventListener("click",signup);
 $("logoutButton").addEventListener("click",logout);
 $("clearButton").addEventListener("click",clearHistory);
+
 newChatButton.addEventListener("click",startNewChat);
 sendButton.addEventListener("click",sendMessage);
-input.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage()}});
-$("passwordInput").addEventListener("keydown",e=>{if(e.key==="Enter")login()});
+
+input.addEventListener("keydown",e=>{
+ if(e.key==="Enter"&&!e.shiftKey){
+  e.preventDefault();
+  sendMessage();
+ }
+});
+
+$("passwordInput").addEventListener("keydown",e=>{
+ if(e.key==="Enter")login();
+});
 
 async function startApp(){
  loadSettings();
+
  const {data,error}=await db.auth.getSession();
- if(error){showAuthMessage("Sessiya xətası: "+error.message);return}
- if(data.session)await activateAccount(data.session.user);
+
+ if(error){
+  showAuthMessage("Sessiya xətası: "+error.message);
+  return;
+ }
+
+ if(data.session){
+  await activateAccount(data.session.user);
+ }
 }
+
 db.auth.onAuthStateChange((event,session)=>{
- if(event==="SIGNED_IN"&&session)setTimeout(()=>activateAccount(session.user),0);
+ if(event==="SIGNED_IN"&&session){
+  setTimeout(()=>activateAccount(session.user),0);
+ }
 });
+
 startApp();
 </script>
 </body>
