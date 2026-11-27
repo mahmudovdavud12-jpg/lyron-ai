@@ -165,6 +165,12 @@ MƏTN FORMATI:
 - Bilmədiyin məsələlərdə bunu açıq bildir.
 - İstifadəçinin yaşına uyğun təhlükəsiz cavablar ver.
 
+MODEL HAQQINDA:
+- Özünü GPT-4, GPT-5 və ya başqa model adlandırma, əgər bu məlumat texniki olaraq təsdiqlənməyibsə.
+- Sən LYRON AI köməkçisisən.
+- İstifadəçi hansı modeldən istifadə etdiyini soruşduqda aşağıda verilən cari texniki məlumatdan istifadə et.
+- Modelin adını və provayderini uydurma.
+
 ŞƏKİL ANALİZİ:
 - Göndərilən şəkli diqqətlə analiz et.
 - Görünən detalları təsvir et.
@@ -208,19 +214,31 @@ ${memoryText || "Hələ yaddaşda saxlanılmış məlumat yoxdur."}
       });
     }
 
-    const messages = [
-      {
-        role: "system",
-        content: systemPrompt
-      },
-      ...safeHistory,
-      {
-        role: "user",
-        content: image ? userContent : message.trim()
-      }
-    ];
+    // Hər provayder üçün düzgün model məlumatı.
 
-    // AI cavabını oxumaq üçün ümumi funksiya.
+    function buildMessages(provider, model) {
+      const currentSystemPrompt = `
+${systemPrompt}
+
+CARİ TEXNİKİ MƏLUMAT:
+Provayder: ${provider}
+Sorğuda istifadə olunan model ID-si: ${model}
+
+İstifadəçi model haqqında soruşarsa, bu məlumatı düzgün şəkildə bildir.
+`;
+
+      return [
+        {
+          role: "system",
+          content: currentSystemPrompt
+        },
+        ...safeHistory,
+        {
+          role: "user",
+          content: image ? userContent : message.trim()
+        }
+      ];
+    }
 
     function extractAnswer(data) {
       const content = data.choices?.[0]?.message?.content;
@@ -241,7 +259,6 @@ ${memoryText || "Hələ yaddaşda saxlanılmış məlumat yoxdur."}
     }
 
     // 1. ƏSAS MODEL: GROQ
-    // Şəkillər üçün OpenRouter istifadə edilir.
 
     if (groqKey && !image) {
       try {
@@ -255,7 +272,7 @@ ${memoryText || "Hələ yaddaşda saxlanılmış məlumat yoxdur."}
             },
             body: JSON.stringify({
               model: groqModel,
-              messages,
+              messages: buildMessages("Groq", groqModel),
               temperature: 0.65,
               max_completion_tokens: 1600
             })
@@ -283,11 +300,14 @@ ${memoryText || "Hələ yaddaşda saxlanılmış məlumat yoxdur."}
           throw new Error("Groq boş cavab qaytardı.");
         }
 
+        console.log("LYRON provider: Groq | Model:", groqModel);
+
         return res.status(200).json({
           answer: groqAnswer,
           mode,
           imageAnalyzed: false,
-          provider: "groq"
+          provider: "groq",
+          model: groqModel
         });
 
       } catch (groqError) {
@@ -299,7 +319,6 @@ ${memoryText || "Hələ yaddaşda saxlanılmış məlumat yoxdur."}
     }
 
     // 2. EHTİYAT MODEL: OPENROUTER
-    // Groq işləmədikdə və ya şəkil göndərildikdə.
 
     const openRouterResponse = await fetch(
       "https://openrouter.ai/api/v1/chat/completions",
@@ -313,7 +332,7 @@ ${memoryText || "Hələ yaddaşda saxlanılmış məlumat yoxdur."}
         },
         body: JSON.stringify({
           model: openRouterModel,
-          messages,
+          messages: buildMessages("OpenRouter", openRouterModel),
           temperature: 0.65,
           max_tokens: 1600
         })
@@ -359,11 +378,14 @@ ${memoryText || "Hələ yaddaşda saxlanılmış məlumat yoxdur."}
       });
     }
 
+    console.log("LYRON provider: OpenRouter | Model:", openRouterModel);
+
     return res.status(200).json({
       answer,
       mode,
       imageAnalyzed: Boolean(image),
-      provider: "openrouter"
+      provider: "openrouter",
+      model: openRouterModel
     });
 
   } catch (error) {
