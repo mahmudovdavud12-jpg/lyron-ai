@@ -1,3 +1,4 @@
+
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
 
@@ -86,6 +87,7 @@ export default async function handler(req, res) {
       });
     }
 
+    // Əvvəlki profil yaddaşını oxuyuruq.
     let memories = [];
 
     const memoryUrl = new URL(
@@ -119,10 +121,10 @@ export default async function handler(req, res) {
       ? `
 SƏS REJİMİ — TÜRK DİLİ:
 1. Bütün cavablarını Türkiyə türkcəsində ver.
-2. İstanbul türkcəsinin təbii və düzgün danışıq dilindən istifadə et.
+2. İstanbul türkcəsinin təbii danışıq dilindən istifadə et.
 3. Azərbaycan dilinə keçmə.
 4. Cümlələri canlı, səlis və gündəlik danışığa uyğun qur.
-5. Robotik və süni səslənən ifadələrdən qaç.
+5. Robotik ifadələrdən qaç.
 6. Cavabları danışıqda rahat eşidiləcək şəkildə yaz.
 `
       : `
@@ -140,39 +142,36 @@ Sən LYRON AI adlı müasir süni intellekt köməkçisisən.
 ${languageInstruction}
 
 MƏTN FORMATI:
-- Cavablarını adi, sadə mətn formasında yaz.
+- Cavablarını sadə mətn formasında yaz.
 - Markdown formatından istifadə etmə.
-- Ulduz, ikiqat ulduz, alt xətt və başlıq işarələri işlətmə.
-- Sözləri qalın və ya kursiv göstərməyə çalışma.
-- Dekorativ simvollar və lazımsız emojilər əlavə etmə.
-- Siyahı lazım olduqda sadə nömrələmə və ya adi cümlələrdən istifadə et.
-- Mətnin oxunaqlılığını və təbii görünüşünü qoru.
+- Lazımsız dekorativ simvollar və emojilər əlavə etmə.
+- Siyahı lazım olduqda sadə nömrələmədən istifadə et.
+- Mətnin oxunaqlılığını qoru.
 
 ÜMUMİ DAVRANIŞ:
 - Adın LYRON AI-dir.
 - Özünü başqa süni intellekt adlandırma.
 - Sualın mahiyyətinə birbaşa cavab ver.
 - Robotik ifadələrdən qaç.
-- İstifadəçi ilə səmimi və hörmətli danış.
-- Mümkün olduqda canlı, təbii və söhbətə uyğun cavablar ver.
+- Hörmətli və təbii danış.
 - Hər cavabı lazımsız yerə uzatma.
 - Mürəkkəb mövzuları anlaşıqlı izah et.
-- İstifadəçinin yaşına uyğun, təhlükəsiz cavablar ver.
+- İstifadəçinin yaşına uyğun təhlükəsiz cavablar ver.
 - Məlumat uydurma.
 - Bilmədiyin məsələlərdə bunu açıq bildir.
-- İstifadəçinin şəxsi məlumatlarını istəmə və lazımsız yerə təkrar etmə.
+- Şəxsi məlumatları lazımsız yerə istəmə.
 
 ŞƏKİL ANALİZİ:
-- İstifadəçi şəkil göndərdikdə onu diqqətlə analiz et.
+- Göndərilən şəkli diqqətlə analiz et.
 - Görünən obyektləri və detalları təsvir et.
-- Şəkil haqqında verilən suallara konkret cavab ver.
+- Şəkil haqqında suallara konkret cavab ver.
 - Görünməyən detalları uydurma.
 - Əmin olmadığın obyektləri ehtimal kimi təqdim et.
-- Şəkildə mətn varsa, oxuna bildiyi qədər köçür.
+- Şəkildəki oxuna bilən mətni izah et.
 - Şəkli analiz edə bilmədikdə bunu açıq bildir.
 
 YADDAŞ:
-Aşağıdakı məlumatlar istifadəçi haqqında əvvəl saxlanılmış faktlardır.
+Aşağıdakı məlumatlar əvvəl saxlanılmış faktlardır.
 Onlardan yalnız cavabları uyğunlaşdırmaq üçün istifadə et.
 Yaddaşda olmayan məlumatları uydurma.
 
@@ -192,13 +191,13 @@ ${memoryText || "Hələ yaddaşda saxlanılmış məlumat yoxdur."}
         content: item.content.slice(0, 4000)
       }));
 
-    const userContent = [];
-
-    userContent.push({
-      type: "text",
-      text: message.trim() ||
-        "Zəhmət olmasa, göndərdiyim şəkli diqqətlə analiz et."
-    });
+    const userContent = [
+      {
+        type: "text",
+        text: message.trim() ||
+          "Zəhmət olmasa, göndərdiyim şəkli diqqətlə analiz et."
+      }
+    ];
 
     if (image) {
       userContent.push({
@@ -209,6 +208,7 @@ ${memoryText || "Hələ yaddaşda saxlanılmış məlumat yoxdur."}
       });
     }
 
+    // Əsas AI sorğusu.
     const aiResponse = await fetch(
       "https://openrouter.ai/api/v1/chat/completions",
       {
@@ -276,118 +276,7 @@ ${memoryText || "Hələ yaddaşda saxlanılmış məlumat yoxdur."}
       });
     }
 
-    if (message.trim() && !image && memories.length < 30) {
-      try {
-        const recentUserMessages = safeHistory
-          .filter(item => item.role === "user")
-          .slice(-5)
-          .map(item => item.content);
-
-        recentUserMessages.push(message.trim());
-
-        const extractionResponse = await fetch(
-          "https://openrouter.ai/api/v1/chat/completions",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              model,
-              messages: [
-                {
-                  role: "system",
-                  content: `
-Sən LYRON AI yaddaş köməkçisisən.
-
-İstifadəçinin gələcək söhbətlərdə faydalı ola biləcək davamlı layihə və ünsiyyət seçimlərini müəyyən et.
-
-Qaydalar:
-- Yalnız istifadəçinin açıq şəkildə dediyi məlumatları seç.
-- Təxmin etmə.
-- Şifrə, API açarı, ünvan və maliyyə məlumatlarını saxlama.
-- Sağlamlıq, din, siyasi baxış, cinsi həyat və digər həssas məlumatları saxlama.
-- Keçici məlumatları və salamlaşmaları saxlama.
-- Maksimum 2 qısa fakt qaytar.
-- Cavab yalnız JSON massivi olsun.
-- Saxlanılacaq məlumat yoxdursa [] qaytar.
-`
-                },
-                {
-                  role: "user",
-                  content: JSON.stringify(recentUserMessages)
-                }
-              ],
-              temperature: 0.1,
-              max_tokens: 200
-            })
-          }
-        );
-
-        if (extractionResponse.ok) {
-          const extractionData = await extractionResponse.json();
-
-          let extracted =
-            extractionData.choices?.[0]?.message?.content || "[]";
-
-          extracted = extracted
-            .replace(/```json/gi, "")
-            .replace(/```/g, "")
-            .trim();
-
-          const facts = JSON.parse(extracted);
-
-          if (Array.isArray(facts)) {
-            const existing = new Set(
-              memories.map(item =>
-                String(item.content).toLowerCase().trim()
-              )
-            );
-
-            const newFacts = facts
-              .filter(fact =>
-                typeof fact === "string" &&
-                fact.trim().length > 0 &&
-                fact.length <= 300 &&
-                !existing.has(fact.toLowerCase().trim())
-              )
-              .slice(0, Math.min(2, 30 - memories.length));
-
-            if (newFacts.length > 0) {
-              const saveResponse = await fetch(
-                `${baseUrl}/rest/v1/lyron_profile_memory`,
-                {
-                  method: "POST",
-                  headers: {
-                    apikey: supabaseKey,
-                    Authorization: `Bearer ${accessToken}`,
-                    "Content-Type": "application/json",
-                    Prefer: "return=minimal"
-                  },
-                  body: JSON.stringify(
-                    newFacts.map(content => ({
-                      user_id: user.id,
-                      content: content.trim()
-                    }))
-                  )
-                }
-              );
-
-              if (!saveResponse.ok) {
-                console.error(
-                  "Memory save error:",
-                  await saveResponse.text()
-                );
-              }
-            }
-          }
-        }
-      } catch (memoryError) {
-        console.error("Memory extraction error:", memoryError);
-      }
-    }
-
+    // Cavabı ikinci AI sorğusu gözləmədən qaytarırıq.
     return res.status(200).json({
       answer: answer.trim(),
       mode,
